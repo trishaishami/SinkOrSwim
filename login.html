@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login - Fluid Mechanics</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<div id="signup-overlay">
+    <div class="card signup-card" id="admin-signin">
+        <h2 style="text-align: center; color: #38d9ff;">Admin / Professor Login</h2>
+        <p style="text-align: center; color: #8aa0ba; margin-bottom: 20px;">Only administrators and professors can access student records.</p>
+        <div class="input-group">
+            <label>Password:</label> <input type="password" id="adminPassword" placeholder="Enter admin password">
+        </div>
+        <button onclick="showAdminLogin()" class="btn-primary" style="width: 100%; margin-top: 10px;">Login</button>
+        <button onclick="location.href='menupage.html'" class="btn-reset" style="width: 100%; margin-top: 10px;">Back to Main Menu</button>
+        <p id="admin-error" style="color: #ff6b8a; font-size: 0.85rem; margin-top: 10px; display: none; text-align: center;">Incorrect password. Try again.</p>
+    </div>
+</div>
+
+<div class="sidebar" id="sidebar" style="display: none;">
+    <h2>Fluid Mechanics</h2>
+    <p class="topic-desc">The study of fluids at rest and in motion, exploring properties like density, pressure, and buoyancy.</p>
+    <a href="index.html">Dashboard</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="login.html">Admin Login</a>
+</div>
+
+<div class="main" id="quiz-main" style="display: none;">
+    <h1>Fluid Mechanics Mastery Quiz</h1>
+    <div class="card" id="quiz-container">
+        <div id="questions-list"></div>
+        <button id="submit-btn" onclick="submitQuiz()" class="btn-primary" style="margin-top: 20px; width: 100%;">Submit Quiz</button>
+    </div>
+</div>
+
+<div class="main" id="results-page" style="display: none; text-align: center;">
+    <h1>Quiz Results</h1>
+    <div class="card">
+        <h2 id="res-name" style="color: #38d9ff; margin-bottom: 10px;"></h2>
+        <div style="font-size: 4rem; font-weight: 800; margin: 20px 0;" class="catchy-value" id="res-score"></div>
+        <p id="res-percent" style="font-size: 1.5rem; color: #8aa0ba; margin-bottom: 30px;"></p>
+        
+        <div style="display: flex; gap: 15px; justify-content: center;">
+            <button onclick="generatePDF()" class="btn-primary" style="background: #38d9ff;">Download PDF Report</button>
+            <button onclick="location.reload()" class="btn-reset">Return to Home</button>
+        </div>
+    </div>
+</div>
+
+<div class="main" id="admin-panel" style="display: none;">
+    <h1>Professor Dashboard</h1>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Student Records</h2>
+            <button onclick="downloadExcel()" class="btn-primary" style="background: #38d9ff;">Download Excel (.csv)</button>
+        </div>
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Course</th>
+                        <th>Section</th>
+                        <th>Correct</th>
+                        <th>Wrong</th>
+                        <th>Grade</th>
+                        <th>Review</th>
+                        <th>Delete</th>
+                        <th>Date Submitted</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-table-body"></tbody>
+            </table>
+        </div>
+        <button onclick="adminLogout()" class="btn-reset" style="margin-top: 20px;">Back to Login</button>
+    </div>
+</div>
+
+<!-- Modal for Teacher Review -->
+<div id="details-modal" class="modal">
+    <div class="modal-content">
+        <h2 id="modal-title" style="color: #38d9ff; margin-top: 0;">Student Review</h2>
+        <div id="modal-body" style="margin-top: 20px;"></div>
+        <button onclick="closeModal()" class="btn-reset" style="width: 100%; margin-top: 20px;">Close Review</button>
+    </div>
+</div>
+
+<script>
+let studentData = {};
+const questions = [
+    {q:"What is the density of water?", c:["100","1000","500","1500"], a:"1000"},
+    {q:"What is the SI unit of pressure?", c:["Pascal","Newton","Watt","Joule"], a:"Pascal"},
+    {q:"What is the formula for density?", c:["ρ = m/V","ρ = V/m","ρ = m*V","ρ = F/A"], a:"ρ = m/V"},
+    {q:"The buoyant force is equal to the weight of displaced fluid. This is...", c:["Pascal","Bernoulli","Archimedes","Newton"], a:"Archimedes"},
+    {q:"SI unit for density?", c:["kg/m²","kg/m³","N/m²","kg*m³"], a:"kg/m³"},
+    {q:"Density of 800 kg/m³ in water (1000 kg/m³) will:", c:["Sink","Float","Dissolve","Explode"], a:"Float"},
+    {q:"Pressure in a liquid depends on depth and...", c:["Width","Color","Density","Shape"], a:"Density"},
+    {q:"1 Pascal is equal to:", c:["1 N/m","1 N/m²","1 kg/m","1 J/m"], a:"1 N/m²"},
+    {q:"What instrument measures atmospheric pressure?", c:["Thermometer","Barometer","Hydrometer","Anemometer"], a:"Barometer"},
+    {q:"Hydraulic lifts use...", c:["Archimedes","Bernoulli","Pascal","Boyle"], a:"Pascal"},
+    {q:"The upward force exerted by a fluid is...", c:["Gravity","Friction","Buoyant Force","Magnetic"], a:"Buoyant Force"},
+    {q:"As you go deeper into a fluid, pressure...", c:["Decreases","Increases","Stays same","Zero"], a:"Increases"},
+    {q:"Density of object with mass 20kg and volume 2m³?", c:["40","10","0.1","5"], a:"10"},
+    {q:"A ship floats because it displaces water equal to its:", c:["Volume","Surface Area","Weight","Mass"], a:"Weight"},
+    {q:"In P = ρgh, 'h' represents...", c:["Horizontal dist","Heat","Height or depth","Hardness"], a:"Height or depth"},
+    {q:"Resistance of a fluid to flow?", c:["Density","Pressure","Viscosity","Buoyancy"], a:"Viscosity"},
+    {q:"Surface tension allows some insects to...", c:["Fly","Walk on water","Breathe underwater","Swim"], a:"Walk on water"},
+    {q:"Compressing gas into smaller volume usually increases its:", c:["Temperature","Pressure","Mass","Density"], a:"Pressure"},
+    {q:"Specific gravity unit?", c:["kg/m³","Pascal","Newtons","No unit"], a:"No unit"},
+    {q:"Principle explaining airplane lift?", c:["Archimedes","Bernoulli","Pascal","Ohm"], a:"Bernoulli"}
+];
+
+// Student signup function removed - admin only login
+const QUIZ_DRAFT_KEY = 'fluid_quiz_draft_v1';
+
+function renderQuiz() {
+    const list = document.getElementById('questions-list');
+    const draft = JSON.parse(localStorage.getItem('quiz_draft') || '{}');
+    // Also support the shared draft format used by the simulation page
+    const shared = (() => { try { return JSON.parse(localStorage.getItem(QUIZ_DRAFT_KEY) || 'null'); } catch(e) { return null; } })();
+    // If shared draft exists and has an answers array, merge into the simple draft mapping
+    if (shared && Array.isArray(shared.answers)) {
+        shared.answers.forEach((ans, idx) => { if (ans !== null && ans !== undefined) draft['q'+idx] = ans; });
+    }
+    list.innerHTML = questions.map((q, i) => `
+        <div class="quiz-item" style="margin-bottom: 20px;">
+            <p><strong>${i+1}. ${q.q}</strong></p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                ${q.c.map(choice => `
+                    <label style="background: rgba(8, 17, 31, 0.92); padding: 10px; border-radius: 8px; border: 1px solid rgba(56, 217, 255, 0.14); cursor: pointer; display: flex; align-items: center; gap: 10px;">
+                        <input type="radio" name="q${i}" value="${choice}" ${draft['q'+i] === choice ? 'checked' : ''}> ${choice}
+                    </label>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+
+    // Attach change listeners to save answers as draft
+    questions.forEach((q, i) => {
+        const inputs = document.querySelectorAll(`input[name="q${i}"]`);
+        inputs.forEach(inp => inp.addEventListener('change', (e) => {
+            saveAnswer(i, e.target.value);
+        }));
+    });
+}
+
+let finalResults = {};
+
+function submitQuiz() {
+    let correct = 0;
+    const details = [];
+
+    questions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        const userAnswer = selected ? selected.value : "No Answer";
+        const isCorrect = userAnswer === q.a;
+        if(isCorrect) correct++;
+        
+        details.push({
+            question: q.q,
+            userAnswer: userAnswer,
+            correctAnswer: q.a,
+            isCorrect: isCorrect
+        });
+    });
+
+    finalResults = {
+        total: questions.length,
+        correct: correct,
+        incorrect: questions.length - correct,
+        score: ((correct / questions.length) * 100).toFixed(2)
+    };
+
+    // Transition to Results Page
+    document.getElementById('quiz-main').style.display = 'none';
+    document.getElementById('results-page').style.display = 'block';
+    document.getElementById('res-name').innerText = `${studentData.lastName}, ${studentData.firstName} ${studentData.middleName}`;
+    document.getElementById('res-score').innerText = `${correct} / ${questions.length}`;
+    document.getElementById('res-percent').innerText = `${finalResults.score}%`;
+
+    // Save to LocalStorage for Professor
+    const records = JSON.parse(localStorage.getItem('quiz_records') || '[]');
+    records.push({
+        fullName: `${studentData.lastName}, ${studentData.firstName} ${studentData.middleName}`,
+        course: studentData.course || 'N/A',
+        section: studentData.section,
+        score: `${correct}/${questions.length}`,
+        correctCount: correct,
+        wrongCount: questions.length - correct,
+        percentage: finalResults.score + '%',
+        timestamp: new Date().toLocaleString(),
+        details: details
+    });
+    localStorage.setItem('quiz_records', JSON.stringify(records));
+
+    // Clear saved draft after final submission
+    try { localStorage.removeItem('quiz_draft'); } catch(e) {}
+    try { localStorage.removeItem(QUIZ_DRAFT_KEY); } catch(e) {}
+
+    window.scrollTo(0, document.body.scrollHeight);
+    generatePDF(); // Auto-generate on submit
+}
+
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const now = new Date();
+    const timestamp = now.toLocaleDateString() + ' ' + now.toLocaleTimeString();
+    const fullName = `${studentData.lastName}, ${studentData.firstName}, ${studentData.middleName}`;
+
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor(56, 217, 255);
+    doc.text("Fluid Mechanics Quiz Report", 20, 20);
+
+    // Student Info
+    doc.setDrawColor(226, 232, 240);
+    doc.line(20, 25, 190, 25);
+    
+    doc.setFontSize(14);
+    doc.setTextColor(30, 41, 59);
+    doc.text("Student Information", 20, 40);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(71, 85, 105);
+    doc.text(`Name: ${fullName}`, 20, 50);
+    doc.text(`Course: ${studentData.course || 'N/A'}`, 20, 58);
+    doc.text(`Section: ${studentData.section}`, 20, 66);
+
+    // Results
+    doc.setFontSize(14);
+    doc.setTextColor(30, 41, 59);
+    doc.text("Quiz Results", 20, 83);
+    
+    doc.setFontSize(11);
+    doc.setTextColor(71, 85, 105);
+    doc.text(`Total Questions: ${finalResults.total}`, 20, 93);
+    doc.text(`Correct Answers: ${finalResults.correct}`, 20, 101);
+    doc.text(`Incorrect Answers: ${finalResults.incorrect}`, 20, 109);
+    
+    doc.setFontSize(16);
+    doc.setTextColor(5, 150, 105);
+    doc.text(`Final Score: ${finalResults.score}%`, 20, 123);
+
+    // Footer
+    doc.setDrawColor(226, 232, 240);
+    doc.line(20, 133, 190, 133);
+    
+    doc.setFontSize(9);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Date and Time Submitted: ${timestamp}`, 20, 143);
+
+    doc.save(`Quiz_Report_${studentData.lastName}.pdf`);
+}
+
+function showAdminLogin() {
+    const pass = document.getElementById('adminPassword') ? document.getElementById('adminPassword').value : null;
+    if (pass === "admin123") {
+        // mark admin logged in so other pages can avoid showing student quiz UI
+        try { localStorage.setItem('admin_logged_in', '1'); } catch(e) {}
+        document.getElementById('signup-overlay').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        renderAdminTable();
+    } else {
+        const err = document.getElementById('admin-error');
+        if (err) err.style.display = 'block';
+    }
+}
+
+function adminLogout() {
+    try { localStorage.removeItem('admin_logged_in'); } catch(e) {}
+    location.reload();
+}
+
+function showAdminForm() {
+    const student = document.getElementById('student-signup');
+    const admin = document.getElementById('admin-signin');
+    if (student) student.style.display = 'none';
+    if (admin) admin.style.display = 'block';
+}
+
+function showStudentForm() {
+    const student = document.getElementById('student-signup');
+    const admin = document.getElementById('admin-signin');
+    if (admin) admin.style.display = 'none';
+    if (student) student.style.display = 'block';
+}
+
+function renderAdminTable() {
+    const records = JSON.parse(localStorage.getItem('quiz_records') || '[]');
+    const tbody = document.getElementById('admin-table-body');
+    
+    if (records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 20px;">No records found.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = records.map((r, i) => `
+        <tr>
+            <td>${r.fullName}</td>
+            <td>${r.course || 'N/A'}</td>
+            <td>${r.section}</td>
+            <td style="color: #2ee6a6; font-weight: bold;">${r.correctCount || 0}</td>
+            <td style="color: #dc2626; font-weight: bold;">${r.wrongCount || 0}</td>
+            <td>${r.percentage}</td>
+            <td><button onclick="viewDetails(${i})" class="btn-primary" style="padding: 5px 10px; font-size: 0.75rem;">View Answers</button></td>
+            <td style="text-align: center;"><button onclick="deleteRecord(${i})" class="btn-delete" title="Delete Record">🗑️</button></td>
+            <td>${r.timestamp}</td>
+        </tr>
+    `).join('');
+}
+
+function deleteRecord(index) {
+    if (confirm("Are you sure you want to delete this record? This cannot be undone.")) {
+        const records = JSON.parse(localStorage.getItem('quiz_records') || '[]');
+        records.splice(index, 1);
+        localStorage.setItem('quiz_records', JSON.stringify(records));
+        renderAdminTable();
+    }
+}
+
+function viewDetails(index) {
+    const records = JSON.parse(localStorage.getItem('quiz_records') || '[]');
+    const student = records[index];
+    const modal = document.getElementById('details-modal');
+    const body = document.getElementById('modal-body');
+    
+    document.getElementById('modal-title').innerText = `Review: ${student.fullName}`;
+    
+    body.innerHTML = student.details.map((d, i) => `
+        <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+            <p style="margin: 0; font-weight: 600;">${i+1}. ${d.question}</p>
+            <p style="margin: 5px 0 0 0; font-size: 0.9rem;">
+                User: <span style="color: ${d.isCorrect ? '#2ee6a6' : '#ff6b8a'}">${d.userAnswer}</span>
+                ${!d.isCorrect ? ` | Correct: <span style="color: #2ee6a6">${d.correctAnswer}</span>` : ''}
+            </p>
+        </div>
+    `).join('');
+    
+    modal.style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('details-modal').style.display = 'none';
+}
+
+function downloadExcel() {
+    const records = JSON.parse(localStorage.getItem('quiz_records') || '[]');
+    if (records.length === 0) return alert("No data to export!");
+
+    let csv = "Full Name,Course,Section,Score,Percentage,Date Submitted\n";
+    records.forEach(r => {
+        // Prepending a tab (\t) is a robust way to prevent Excel from converting scores into dates
+        csv += `"${r.fullName}","${r.course || 'N/A'}","${r.section}","\t${r.score}","${r.percentage}","${r.timestamp}"\n`;
+    });
+
+    // Adding UTF-8 BOM for Excel compatibility
+    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `Student_Scores_${new Date().toLocaleDateString()}.csv`);
+    a.click();
+}
+
+// Save a single answer to draft in localStorage
+function saveAnswer(index, value) {
+    try {
+        const draft = JSON.parse(localStorage.getItem('quiz_draft') || '{}');
+        draft['q' + index] = value;
+        localStorage.setItem('quiz_draft', JSON.stringify(draft));
+        // Also update the shared quiz draft structure so simulation page can read it
+        try {
+            const sharedRaw = JSON.parse(localStorage.getItem(QUIZ_DRAFT_KEY) || '{}');
+            const shared = typeof sharedRaw === 'object' && Array.isArray(sharedRaw.answers) ? sharedRaw : { current: 0, score: 0, selectedAnswer: null, answers: Array(questions.length).fill(null), locked: Array(questions.length).fill(false), completed: false };
+            shared.answers[index] = value;
+            // Advance the shared "current" pointer to the next unanswered question so pages can resume where the student left off
+            const nextUnanswered = shared.answers.findIndex(a => a === null || a === undefined);
+            if (nextUnanswered === -1) {
+                // All answered — mark current as length (will be treated as completed by simulation)
+                shared.current = questions.length;
+            } else {
+                shared.current = nextUnanswered;
+            }
+            localStorage.setItem(QUIZ_DRAFT_KEY, JSON.stringify(shared));
+        } catch (e) {
+            // ignore
+        }
+    } catch (e) {
+        console.warn('Could not save draft', e);
+    }
+}
+
+// Ensure quiz is rendered on load so saved answers are restored when the user returns
+document.addEventListener('DOMContentLoaded', () => {
+    renderQuiz();
+});
+
+// best-effort save before unload (answers are already saved on change)
+window.addEventListener('beforeunload', () => {
+    // no-op; saved on each change via saveAnswer
+});
+</script>
+<script>
+(function() {
+    try {
+        const nav = performance.getEntriesByType('navigation')[0] || {};
+        const reloaded = nav.type === 'reload' || window.performance?.navigation?.type === 1;
+        const file = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1).toLowerCase();
+        if (reloaded && file && file !== 'index.html') {
+            window.location.replace('index.html');
+        }
+    } catch (e) {
+        console.warn('Redirect on reload failed', e);
+    }
+})();
+</script>
+</body>
+</html>

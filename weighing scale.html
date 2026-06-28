@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Simulation</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button class="back-button" onclick="if (history.length > 1) history.back(); else location.href='menupage.html';">← Back</button>
+
+<div class="sidebar" id="sidebar">
+    <h2>🌊 Fluid Mechanics</h2>
+    <p class="topic-desc">The study of fluids at rest and in motion, exploring properties like density, pressure, and buoyancy.</p>
+    <a href="index.html">Dashboard</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="login.html">Admin Login</a>
+</div>
+
+<div class="main" id="main-content">
+
+<h1>Digital Weighing Scale Lab</h1>
+
+<div class="scale-lab-container">
+    <div class="digital-scale">
+        <div class="scale-plate" id="scale-plate">
+            <div id="placed-object"></div>
+        </div>
+        <div class="scale-body">
+            <div class="digital-readout">
+                <span id="density-result">0.00</span><span class="unit">kg/m³</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card control-panel" style="width: 400px; margin: 0; padding: 15px;">
+        <h3>Density Controls</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px;">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>Object Mass (kg):</label>
+                <input type="number" id="mass-input" min="0" max="1000" step="any" value="0" oninput="calculateWeight()" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; margin-top: 5px;">
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>Object Shape:</label>
+                <select id="shape-select" onchange="updateShapeInputs()" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px; box-sizing: border-box; margin-top: 5px; background: white;">
+                    <option value="rectangle">Rectangular Block</option>
+                    <option value="cube">Cube (s³)</option>
+                    <option value="sphere">Sphere (4/3πr³)</option>
+                    <option value="cylinder">Cylinder (πr²h)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div id="dimension-inputs" class="input-group"></div>
+        
+        <div class="info-box">
+            <p><strong>Formula:</strong> ρ = m / V</p>
+            <p><strong>Density (ρ)</strong> in kg/m³</p>
+        </div>
+        
+        <button onclick="resetScale()" class="btn-reset" style="width: 100%; margin: 10px 0;">Reset Lab</button>
+    </div>
+</div>
+
+</div>
+
+<script>
+window.onload = updateShapeInputs;
+
+function updateShapeInputs() {
+    const shape = document.getElementById("shape-select").value;
+    const container = document.getElementById("dimension-inputs");
+    let html = "";
+
+    if (shape === "rectangle") {
+        html = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div><label>Length (m):</label><input type="number" id="dim-l" value="1" step="any" oninput="calculateWeight()" style="width:100%; padding:8px;"></div>
+                <div><label>Width (m):</label><input type="number" id="dim-w" value="1" step="any" oninput="calculateWeight()" style="width:100%; padding:8px;"></div>
+                <div><label>Height (m):</label><input type="number" id="dim-h" value="1" step="any" oninput="calculateWeight()" style="width:100%; padding:8px;"></div>
+            </div>`;
+    } else if (shape === "cube") {
+        html = `<label>Side (m):</label><input type="number" id="dim-s" value="1" step="any" oninput="calculateWeight()" style="width:100%; padding:8px;">`;
+    } else if (shape === "sphere") {
+        html = `<label>Radius (m):</label><input type="number" id="dim-r" value="1" step="any" oninput="calculateWeight()" style="width:100%; padding:8px;">`;
+    } else if (shape === "cylinder") {
+        html = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div><label>Radius (m):</label><input type="number" id="dim-r" value="1" step="any" oninput="calculateWeight()" style="width:100%; padding:8px;"></div>
+                <div><label>Height (m):</label><input type="number" id="dim-h" value="1" step="any" oninput="calculateWeight()" style="width:100%; padding:8px;"></div>
+            </div>`;
+    }
+    container.innerHTML = html;
+    calculateWeight();
+}
+
+function resetScale() {
+    document.getElementById("mass-input").value = 0;
+    document.getElementById("shape-select").value = "rectangle";
+    updateShapeInputs();
+}
+
+function calculateWeight() {
+    let mVal = document.getElementById("mass-input").value;
+    const m = mVal === "" ? 0 : parseFloat(mVal);
+    const shape = document.getElementById("shape-select").value;
+    let v = 0, sx = 1, sy = 1, sz = 1;
+    const k = 0.5; // Visual scaling constant (1m = 50px)
+
+    if (shape === "rectangle") {
+        const l = parseFloat(document.getElementById("dim-l")?.value || 0);
+        const w = parseFloat(document.getElementById("dim-w")?.value || 0);
+        const h = parseFloat(document.getElementById("dim-h")?.value || 0);
+        v = l * w * h;
+        sx = l * k; sy = h * k; sz = w * k;
+    } else if (shape === "cube") {
+        const s = parseFloat(document.getElementById("dim-s")?.value || 0);
+        v = Math.pow(s, 3);
+        sx = sy = sz = s * k;
+    } else if (shape === "sphere") {
+        const r = parseFloat(document.getElementById("dim-r")?.value || 0);
+        v = (4/3) * Math.PI * Math.pow(r, 3);
+        sx = sy = sz = (2 * r) * k;
+    } else if (shape === "cylinder") {
+        const r = parseFloat(document.getElementById("dim-r")?.value || 0);
+        const h = parseFloat(document.getElementById("dim-h")?.value || 0);
+        v = Math.PI * Math.pow(r, 2) * h;
+        sx = sz = (2 * r) * k; sy = h * k;
+    }
+
+    if (v <= 0) {
+        document.getElementById("density-result").innerText = "0.00";
+    } else {
+        const density = m / v;
+        document.getElementById("density-result").innerText = density.toFixed(2);
+    }
+
+    const obj = document.getElementById("placed-object");
+    const plate = document.getElementById("scale-plate");
+
+    if (m > 0) {
+        obj.style.display = "block";
+        
+        if (shape === "sphere") {
+            obj.innerHTML = '<div class="sphere-3d"></div>';
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-10deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else if (shape === "cylinder") {
+            obj.innerHTML = `
+                <div class="cylinder-3d">
+                    <div class="side"></div>
+                    <div class="cap top-cap"></div>
+                    <div class="cap bottom-cap"></div>
+                </div>`;
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-20deg) rotateY(15deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else if (shape === "cube") {
+            obj.innerHTML = `
+                <div class="cube-face front"></div><div class="cube-face back"></div>
+                <div class="cube-face top"></div><div class="cube-face bottom"></div>
+                <div class="cube-face left"></div><div class="cube-face right"></div>
+            `;
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-25deg) rotateY(-45deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else {
+            // Rectangle
+            obj.innerHTML = `
+                <div class="face front"></div><div class="face back"></div>
+                <div class="face top"></div><div class="face bottom"></div>
+                <div class="face left"></div><div class="face right"></div>
+            `;
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-20deg) rotateY(30deg) scale3d(${sx}, ${sy}, ${sz})`;
+        }
+
+        plate.style.transform = `translateY(${Math.min(10, m/10)}px)`;
+    } else {
+        obj.style.display = "none";
+        plate.style.transform = "translateY(0)";
+    }
+}
+</script>
+<script>
+(function() {
+    try {
+        const nav = performance.getEntriesByType('navigation')[0] || {};
+        const reloaded = nav.type === 'reload' || window.performance?.navigation?.type === 1;
+        const file = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1).toLowerCase();
+        if (reloaded && file && file !== 'index.html') {
+            window.location.replace('index.html');
+        }
+    } catch (e) {
+        console.warn('Redirect on reload failed', e);
+    }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fluid Mechanics Learning Hub</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button class="back-button" onclick="if (history.length > 1) history.back(); else location.href='index.html';">← Back</button>
+
+<div class="main index-home">
+
+  <section class="index-hero">
+    <p class="eyebrow">Fluid Mechanics</p>
+    <h1>Learning Hub</h1>
+    <p class="authors-intro">Interactive simulations, quizzes, and resources for mastering fluid mechanics.</p>
+    <div class="hero-status">
+      <p class="hero-status-title">Mission:</p>
+      <p class="hero-status-text">Dive into density, ride the buoyancy wave, and conquer the pressure challenge.</p>
+    </div>
+  </section>
+
+  <section class="menu-grid" aria-label="Main menu">
+    <div class="menu-card" onclick="location.href='simulation.html'">
+      <div class="menu-card-icon">🧪</div>
+      <span class="menu-card-tag">Start Lab</span>
+      <h3>Simulation</h3>
+      <p>Interactive density and buoyancy lab with mission-style quiz challenges.</p>
+    </div>
+
+    <div class="menu-card" onclick="location.href='login.html'">
+      <div class="menu-card-icon">🔐</div>
+      <span class="menu-card-tag">Professor</span>
+      <h3>Admin Login</h3>
+      <p>Access student records, review performance, and download reports.</p>
+    </div>
+
+    <div class="menu-card" onclick="location.href='authors.html'">
+      <div class="menu-card-icon">👥</div>
+      <span class="menu-card-tag">Team</span>
+      <h3>Authors</h3>
+      <p>Meet the student creators powering this fluid mechanics adventure.</p>
+    </div>
+
+    <div class="menu-card" onclick="location.href='about.html'">
+      <div class="menu-card-icon">ℹ️</div>
+      <span class="menu-card-tag">Info</span>
+      <h3>About</h3>
+      <p>Learn how the hub works, what concepts it covers, and why it was built.</p>
+    </div>
+  </section>
+
+</div>
+
+<!-- Authors Section -->
+<section id="authors-section" style="display: none; width: 100%; max-width: 1200px; margin: 0 auto; padding: 40px 20px; box-sizing: border-box;">
+
+<section class="authors-hero" style="text-align: center; margin-bottom: 40px;">
+    <p class="eyebrow">Project Team</p>
+    <h1>Authors</h1>
+    <p class="authors-intro">Meet the students behind this Fluid Mechanics learning hub.</p>
+</section>
+
+<section class="authors-grid" aria-label="Authors">
+    <div class="authors-row authors-row-top">
+        <article class="author-card">
+            <img src="images/BRIAN.jpg" alt="Author portrait" class="author-photo">
+            <div class="author-info">
+                <p class="author-name">BRIAN, DANNA MAY C.</p>
+                <p class="author-role">Author</p>
+            </div>
+        </article>
+
+        <article class="author-card">
+            <img src="images/EBUENGA.jpg" alt="Author portrait" class="author-photo">
+            <div class="author-info">
+                <p class="author-name">EBUENGA, MACKY JOE</p>
+                <p class="author-role">Author</p>
+            </div>
+        </article>
+
+        <article class="author-card">
+            <img src="images/LUMBAD.jpg" alt="Author portrait" class="author-photo">
+            <div class="author-info">
+                <p class="author-name">LUMBAD, JHUNXEIAH FREYA P.</p>
+                <p class="author-role">Author</p>
+            </div>
+        </article>
+    </div>
+
+    <div class="authors-row authors-row-bottom">
+        <article class="author-card">
+            <img src="images/MAHUMOC.jpg" alt="Author portrait" class="author-photo">
+            <div class="author-info">
+                <p class="author-name">MAHUMOC, TRISHA MAE P.</p>
+                <p class="author-role">Author</p>
+            </div>
+        </article>
+
+        <article class="author-card">
+            <img src="images/URBIZTONDO.png" alt="Author portrait" class="author-photo">
+            <div class="author-info">
+                <p class="author-name">URBIZTONDO, JUSTINE WAYNE M.</p>
+                <p class="author-role">Author</p>
+            </div>
+        </article>
+    </div>
+</section>
+
+<button type="button" class="sim-primary-btn sim-open-btn" onclick="showMenu()" style="margin-top: 40px; display: block; margin-left: auto; margin-right: auto;">Back to Menu</button>
+
+</section>
+
+<!-- About Section -->
+<section id="about-section" style="display: none; width: 100%; max-width: 900px; margin: 0 auto; padding: 40px 20px; box-sizing: border-box;">
+
+<section class="authors-hero" style="text-align: center; margin-bottom: 40px;">
+    <p class="eyebrow">Project Information</p>
+    <h1>About</h1>
+</section>
+
+<div class="card" style="padding: 40px; line-height: 1.8;">
+    <h3 style="color: #38d9ff; margin-top: 0;">Fluid Mechanics Learning Hub</h3>
+    <p style="color: #cbd5e1;">This interactive learning platform is designed to help students understand the fundamental concepts of fluid mechanics through hands-on simulations, visualizations, and assessments. Whether you're exploring density calculations or buoyancy principles, our comprehensive lab environment provides an engaging way to master fluid mechanics concepts.</p>
+    
+    <h4 style="color: #38d9ff; margin-top: 30px;">About This App</h4>
+    <p style="color: #cbd5e1;">The Fluid Mechanics Learning Hub was created by a team of dedicated students to bridge the gap between theoretical learning and practical understanding. This project combines interactive simulations with assessment tools to create a complete learning experience for fluid mechanics education.</p>
+    
+    <h4 style="color: #38d9ff; margin-top: 30px;">Key Features</h4>
+    <ul style="color: #cbd5e1;">
+        <li><strong>Density Simulation:</strong> Calculate object density using mass and volume measurements with real-time visualization.</li>
+        <li><strong>Buoyancy Test:</strong> Observe and predict how objects float or sink in different fluids based on density comparison.</li>
+        <li><strong>Interactive Quiz:</strong> Test your understanding with simulation-integrated questions and track your progress.</li>
+        <li><strong>Professor Dashboard:</strong> Instructors can view detailed student records, quiz results, and generate reports.</li>
+        <li><strong>Single-Attempt Assessment:</strong> Students take the quiz once per session, ensuring focused, intentional learning.</li>
+    </ul>
+    
+    <h4 style="color: #38d9ff; margin-top: 30px;">Concepts Covered</h4>
+    <ul style="color: #cbd5e1;">
+        <li>Density and Mass-Volume Relationships</li>
+        <li>Buoyancy and Archimedes' Principle</li>
+        <li>Fluid Properties and Behavior</li>
+        <li>Pressure and Depth Calculations</li>
+        <li>Floating and Sinking Conditions</li>
+        <li>Real-World Applications of Fluid Mechanics</li>
+    </ul>
+    
+    <h4 style="color: #38d9ff; margin-top: 30px;">Getting Started</h4>
+    <p style="color: #cbd5e1;"><strong>For Students:</strong> Head to the Simulation section to begin the tutorial, explore the density and buoyancy labs, and take the assessment quiz.</p>
+    <p style="color: #cbd5e1;"><strong>For Professors:</strong> Use the Admin Login to access the dashboard, view all student submissions, and download records for further analysis.</p>
+</div>
+
+<button type="button" class="sim-primary-btn sim-open-btn" onclick="showMenu()" style="margin-top: 40px; display: block; margin-left: auto; margin-right: auto;">Back to Menu</button>
+
+</section>
+
+</div>
+
+<script>
+function showMenu() {
+    document.querySelector('.main').style.display = 'flex';
+    document.getElementById('authors-section').style.display = 'none';
+    document.getElementById('about-section').style.display = 'none';
+}
+
+function showAuthors() {
+    document.querySelector('.main').style.display = 'none';
+    document.getElementById('authors-section').style.display = 'block';
+    document.getElementById('about-section').style.display = 'none';
+}
+
+function showAbout() {
+    document.querySelector('.main').style.display = 'none';
+    document.getElementById('authors-section').style.display = 'none';
+    document.getElementById('about-section').style.display = 'block';
+}
+</script>
+
+<script>
+(function() {
+    try {
+        const nav = performance.getEntriesByType('navigation')[0] || {};
+        const reloaded = nav.type === 'reload' || window.performance?.navigation?.type === 1;
+        const file = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1).toLowerCase();
+        if (reloaded && file && file !== 'index.html') {
+            window.location.replace('index.html');
+        }
+    } catch (e) {
+        console.warn('Redirect on reload failed', e);
+    }
+})();
+</script>
+</body>
+</html>

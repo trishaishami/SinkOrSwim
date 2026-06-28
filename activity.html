@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Activity</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button class="back-button" onclick="if (history.length > 1) history.back(); else location.href='menupage.html';">← Back</button>
+
+<div class="sidebar">
+    <h2>Fluid Mechanics</h2>
+    <p class="topic-desc">The study of fluids at rest and in motion, exploring properties like density, pressure, and buoyancy.</p>
+    <a href="index.html">Dashboard</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="activity.html">Activity</a>
+    <a href="login.html">Admin Login</a>
+</div>
+
+<div class="main">
+
+<h1>Activity</h1>
+
+<div class="card">
+
+<h2>Problem 1: Apparent Weight</h2>
+
+<p>
+An object weighs 500 N in air. When submerged in water, it displaces 200 N of fluid. 
+What is its <b>Apparent Weight</b> in Newtons?
+</p>
+
+<input id="answer">
+
+<button onclick="check()">
+Submit
+</button>
+
+<p id="result"></p>
+
+</div>
+
+</div>
+
+<script>
+
+function check(){
+
+let ans =
+parseFloat(document.getElementById("answer").value);
+
+if(ans === 300){
+
+document.getElementById("result").innerHTML =
+"Correct";
+
+}
+else{
+
+document.getElementById("result").innerHTML =
+"Try Again";
+
+}
+
+}
+
+</script>
+
+<script>
+(function() {
+    try {
+        const nav = performance.getEntriesByType('navigation')[0] || {};
+        const reloaded = nav.type === 'reload' || window.performance?.navigation?.type === 1;
+        const file = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1).toLowerCase();
+        if (reloaded && file && file !== 'index.html') {
+            window.location.replace('index.html');
+        }
+    } catch (e) {
+        console.warn('Redirect on reload failed', e);
+    }
+})();
+</script>
+</body>
+</html>

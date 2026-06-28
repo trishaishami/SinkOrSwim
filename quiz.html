@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Quiz</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <button class="back-button" onclick="if (history.length > 1) history.back(); else location.href='menupage.html';">← Back</button>
+
+<div class="sidebar">
+    <h2>🌊 Fluid Mechanics</h2>
+    <p class="topic-desc">The study of fluids at rest and in motion, exploring properties like density, pressure, and buoyancy.</p>
+    <a href="index.html">Dashboard</a>
+    <a href="simulation.html">Simulation</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="login.html">Admin Login</a>
+</div>
+
+<div id="signup-overlay" style="display: flex; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000;">
+    <div class="card signup-card" style="width: 90%; max-width: 400px;">
+        <h2 style="text-align: center; color: #38d9ff; margin-top: 0;">Student Sign Up</h2>
+        <p style="text-align: center; color: #8aa0ba; margin-bottom: 20px;">Please enter your information to start the quiz.</p>
+        
+        <div class="input-group">
+            <label>First Name:</label>
+            <input type="text" id="firstName" placeholder="Enter first name">
+        </div>
+        <div class="input-group">
+            <label>Last Name:</label>
+            <input type="text" id="lastName" placeholder="Enter last name">
+        </div>
+        <div class="input-group">
+            <label>Middle Name:</label>
+            <input type="text" id="middleName" placeholder="Enter middle name (optional)">
+        </div>
+        <div class="input-group">
+            <label>Course:</label>
+            <input type="text" id="course" placeholder="Enter your course">
+        </div>
+        <div class="input-group">
+            <label>Section:</label>
+            <input type="text" id="section" placeholder="Enter your section">
+        </div>
+        
+        <button onclick="startQuiz()" class="btn-primary" style="width: 100%; margin-top: 10px;">Start Quiz</button>
+        <button onclick="location.href='menupage.html'" class="btn-reset" style="width: 100%; margin-top: 10px;">Back to Main Menu</button>
+        <p id="signup-error" style="color: #ff6b8a; font-size: 0.85rem; margin-top: 10px; display: none; text-align: center;">Please fill in all required fields.</p>
+    </div>
+</div>
+
+<div class="main" id="quiz-container" style="display: none;">
+
+    <div class="card">
+        <h1>Fluid Mechanics Quiz</h1>
+        <div id="progress" style="font-size: 0.9rem; color: #6366f1; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;"></div>
+        <h2 id="question"></h2>
+        <div id="choices"></div>
+        <h2 id="score"></h2>
+    </div>
+
+</div>
+
+<script>
+
+let studentData = {};
+
+let questions=[
+
+{
+q:"What is the density of water?",
+c:["100","1000","500","1500"],
+a:"1000"
+},
+{
+q:"What is the SI unit of pressure?",
+c:["Pascal","Newton","Watt","Joule"],
+a:"Pascal"
+},
+{
+q:"What is the formula for density?",
+c:["ρ = m/V","ρ = V/m","ρ = m*V","ρ = F/A"],
+a:"ρ = m/V"
+},
+{
+q:"The buoyant force on an object is equal to the weight of the fluid it displaces. This is...",
+c:["Pascal's Principle","Bernoulli's Principle","Archimedes' Principle","Newton's Law"],
+a:"Archimedes' Principle"
+},
+{
+q:"Which of the following is the standard unit for density?",
+c:["kg/m²","kg/m³","N/m²","kg*m³"],
+a:"kg/m³"
+},
+{
+q:"If an object has a density of 800 kg/m³, in water (1000 kg/m³) it will:",
+c:["Sink","Float","Dissolve","Explode"],
+a:"Float"
+},
+{
+q:"Pressure in a liquid depends on depth and...",
+c:["Width","Color","Density","Shape"],
+a:"Density"
+},
+{
+q:"1 Pascal is equal to:",
+c:["1 N/m","1 N/m²","1 kg/m","1 J/m"],
+a:"1 N/m²"
+},
+{
+q:"What instrument measures atmospheric pressure?",
+c:["Thermometer","Barometer","Hydrometer","Anemometer"],
+a:"Barometer"
+},
+{
+q:"Hydraulic lifts are an application of...",
+c:["Archimedes' Principle","Bernoulli's Principle","Pascal's Principle","Boyle's Law"],
+a:"Pascal's Principle"
+},
+{
+q:"The upward force exerted by a fluid is called...",
+c:["Gravity","Friction","Buoyant Force","Magnetic Force"],
+a:"Buoyant Force"
+},
+{
+q:"What is the apparent weight of an object if its real weight is 10N and the buoyant force is 3N?",
+c:["13N","7N","30N","3.33N"],
+a:"7N"
+},
+{
+q:"What is the density of an object with mass 20kg and volume 2m³?",
+c:["40 kg/m³","10 kg/m³","0.1 kg/m³","5 kg/m³"],
+a:"10 kg/m³"
+},
+{
+q:"A ship floats because...",
+c:["It is made of wood","It is lighter than air","It displaces water equal to its weight","The ocean is deep"],
+a:"It displaces water equal to its weight"
+},
+{
+q:"In the formula P = ρgh, 'h' represents...",
+c:["Horizontal distance","Heat","Height or depth","Hardness"],
+a:"Height or depth"
+},
+{
+q:"The resistance of a fluid to flow is called...",
+c:["Density","Pressure","Viscosity","Buoyancy"],
+a:"Viscosity"
+},
+{
+q:"Surface tension allows some insects to...",
+c:["Fly","Walk on water","Breathe underwater","Swim fast"],
+a:"Walk on water"
+},
+{
+q:"If you compress a gas into a smaller volume, its pressure usually...",
+c:["Decreases","Increases","Stays the same","Fluctuates"],
+a:"Increases"
+},
+{
+q:"Specific gravity has which unit?",
+c:["kg/m³","Pascal","Newtons","No unit"],
+a:"No unit"
+},
+{
+q:"Which principle explains how airplanes get lift?",
+c:["Archimedes' Principle","Bernoulli's Principle","Pascal's Principle","Ohm's Law"],
+a:"Bernoulli's Principle"
+}
+];
+
+let current=0;
+let score=0;
+
+function startQuiz() {
+    const firstName = document.getElementById('firstName').value.trim();
+    const lastName = document.getElementById('lastName').value.trim();
+    const middleName = document.getElementById('middleName').value.trim();
+    const course = document.getElementById('course').value.trim();
+    const section = document.getElementById('section').value.trim();
+    
+    // Validate required fields
+    if (!firstName || !lastName || !course || !section) {
+        const errorEl = document.getElementById('signup-error');
+        if (errorEl) errorEl.style.display = 'block';
+        return;
+    }
+    
+    // Store student data
+    studentData = {
+        firstName: firstName,
+        lastName: lastName,
+        middleName: middleName || "",
+        course: course,
+        section: section
+    };
+    
+    // Hide signup overlay and show quiz
+    document.getElementById('signup-overlay').style.display = 'none';
+    document.getElementById('quiz-container').style.display = 'block';
+    
+    // Initialize quiz
+    current = 0;
+    score = 0;
+    load();
+}
+
+function load(){
+
+if(current>=questions.length){
+
+document.getElementById("question").innerHTML=
+"Quiz Finished";
+
+document.getElementById("choices").innerHTML="";
+document.getElementById("progress").innerHTML="";
+document.getElementById("score").innerHTML=
+"Final Score: "+score+" / "+questions.length;
+
+// Save quiz results to admin panel
+saveQuizResults();
+
+return;
+}
+
+document.getElementById("progress").innerHTML=
+"Question "+(current+1)+" / "+questions.length;
+
+document.getElementById("question").innerHTML=
+questions[current].q;
+
+let html="";
+
+questions[current].c.forEach(choice=>{
+
+html +=
+`<button onclick="check(this.innerText)">${choice}</button>`;
+
+});
+
+document.getElementById("choices").innerHTML=html;
+}
+
+function check(choice){
+
+if(choice==questions[current].a){
+
+score++;
+
+}
+
+current++;
+
+load();
+
+}
+
+function saveQuizResults() {
+    try {
+        // Get existing records from localStorage
+        const records = JSON.parse(localStorage.getItem('quiz_records') || '[]');
+        
+        // Create new record
+        const fullName = `${studentData.lastName}, ${studentData.firstName} ${studentData.middleName}`.trim();
+        
+        const newRecord = {
+            fullName: fullName,
+            course: studentData.course,
+            section: studentData.section,
+            score: `${score}/${questions.length}`,
+            correctCount: score,
+            wrongCount: questions.length - score,
+            percentage: ((score / questions.length) * 100).toFixed(2) + '%',
+            timestamp: new Date().toLocaleString()
+        };
+        
+        // Add new record to array
+        records.push(newRecord);
+        
+        // Save back to localStorage
+        localStorage.setItem('quiz_records', JSON.stringify(records));
+        
+        console.log('Quiz results saved to admin panel:', newRecord);
+    } catch(e) {
+        console.error('Error saving quiz results:', e);
+    }
+}
+
+</script>
+
+</body>
+<script>
+(function() {
+    try {
+        const nav = performance.getEntriesByType('navigation')[0] || {};
+        const reloaded = nav.type === 'reload' || window.performance?.navigation?.type === 1;
+        const file = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1).toLowerCase();
+        if (reloaded && file && file !== 'index.html') {
+            window.location.replace('index.html');
+        }
+    } catch (e) {
+        console.warn('Redirect on reload failed', e);
+    }
+})();
+</script>
+</html>

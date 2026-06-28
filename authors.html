@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authors - Fluid Mechanics Learning Hub</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="main authors-page">
+    <section class="card authors-panel">
+      <p class="eyebrow">Project Team</p>
+      <h1>Authors</h1>
+      <p class="authors-intro">This learning hub was developed by a group of students who wanted to make fluid mechanics more engaging and interactive.</p>
+      <div class="authors-grid" aria-label="Authors">
+        <article class="author-card">
+          <img src="images/BRIAN.jpg" alt="Author portrait" class="author-photo" />
+          <div class="author-info">
+            <p class="author-name">BRIAN, DANNA MAY C.</p>
+            <p class="author-role">Author</p>
+            <p class="author-program">BIndTech Computer Technology 2A</p>
+          </div>
+        </article>
+        <article class="author-card">
+          <img src="images/EBUENGA.jpg" alt="Author portrait" class="author-photo" />
+          <div class="author-info">
+            <p class="author-name">EBUENGA, MACKY JOE</p>
+            <p class="author-role">Author</p>
+            <p class="author-program">BIndTech Computer Technology 2A</p>
+          </div>
+        </article>
+        <article class="author-card">
+          <img src="images/LUMBAD.jpg" alt="Author portrait" class="author-photo" />
+          <div class="author-info">
+            <p class="author-name">LUMBAD, JHUNXEIAH FREYA P.</p>
+            <p class="author-role">Author</p>
+            <p class="author-program">BIndTech Computer Technology 2A</p>
+          </div>
+        </article>
+        <article class="author-card">
+          <img src="images/MAHUMOC.jpg" alt="Author portrait" class="author-photo" />
+          <div class="author-info">
+            <p class="author-name">MAHUMOC, TRISHA MAE P.</p>
+            <p class="author-role">Author</p>
+            <p class="author-program">BIndTech Computer Technology 2A</p>
+          </div>
+        </article>
+        <article class="author-card">
+          <img src="images/URBIZTONDO.png" alt="Author portrait" class="author-photo" />
+          <div class="author-info">
+            <p class="author-name">URBIZTONDO, JUSTINE WAYNE M.</p>
+            <p class="author-role">Author</p>
+            <p class="author-program">BIndTech Computer Technology 2A</p>
+          </div>
+        </article>
+      </div>
+      <a href="menupage.html" class="sim-primary-btn sim-open-btn authors-back-btn">Back to Menu</a>
+    </section>
+  </div>
+<script>
+(function() {
+    try {
+        const nav = performance.getEntriesByType('navigation')[0] || {};
+        const reloaded = nav.type === 'reload' || window.performance?.navigation?.type === 1;
+        const file = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1).toLowerCase();
+        if (reloaded && file && file !== 'index.html') {
+            window.location.replace('index.html');
+        }
+    } catch (e) {
+        console.warn('Redirect on reload failed', e);
+    }
+})();
+</script>
+</body>
+</html>
