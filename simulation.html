@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Fluid Mechanics Simulation</title>
+<link rel="stylesheet" href="style.css">
+<script src="waves.js" defer></script>
+</head>
+<body class="simulation-page">
+  <button class="back-button" onclick="if (history.length > 1) history.back(); else location.href='menupage.html';">← Back</button>
+
+<div class="main" id="main-content">
+<section class="sim-intro-screen" id="start-screen">
+    <div class="sim-intro-panel">
+        <p class="sim-kicker">Fluid Mechanics Simulation</p>
+        <h1>Density &amp; Buoyancy Lab</h1>
+        <p class="sim-lead">Learn the fluid mechanics idea first, then use the density weighing scale and buoyancy tank to test how mass, volume, and water density decide if an object floats or sinks.</p>
+        <button type="button" class="sim-primary-btn sim-start-btn" onclick="showTutorial()">Start The Simulation Guide</button>
+    </div>
+</section>
+
+<section class="sim-tutorial-screen" id="tutorial-screen" style="display: none;">
+    <div class="tutorial-header">
+        <p class="sim-kicker">Fluid Mechanics Info</p>
+        <h1>Fluid Mechanics Guide</h1>
+        <p class="sim-lead">Fluid mechanics studies how liquids and gases behave. In this simulation, water is the fluid. You will calculate density first, then use buoyancy to predict if the object floats or sinks.</p>
+    </div>
+    <div class="tutorial-grid">
+        <div class="tutorial-card"><h3>Meaning</h3><p>Fluid mechanics explains how water pushes on objects and how an object's density affects its motion in the fluid.</p></div>
+        <div class="tutorial-card"><h3>Density Formula</h3><p class="formula-text">&rho; = m / V</p><p>Density equals mass divided by volume.</p></div>
+        <div class="tutorial-card"><h3>Buoyancy Formula</h3><p class="formula-text">F<sub>b</sub> = &rho;<sub>water</sub>gV</p><p>Buoyant force depends on water density, gravity, and displaced volume.</p></div>
+        <div class="tutorial-card"><h3>Water Rule</h3><p>Fresh water has a density of 1000 kg/m&sup3;. Lower density floats. Higher density sinks.</p></div>
+    </div>
+    <div class="tutorial-steps tutorial-split">
+        <div class="tutorial-step-card"><h2>Tutorial 1: Density Simulation</h2><p>Enter the mass, choose the shape, and give the needed dimensions or volume. The weighing scale calculates the object's density.</p></div>
+        <div class="tutorial-step-card"><h2>Tutorial 2: Buoyancy Simulation</h2><p>Use the density result in the water tank. Click Submerge Object to see if the object floats or sinks.</p></div>
+        <div class="tutorial-flow-note"><h2>How The Two Simulations Connect</h2><p>The density simulation gives the value. The buoyancy simulation uses that value to show the object's behavior in water.</p></div>
+        <div class="tutorial-action"><button type="button" class="sim-primary-btn sim-open-btn" onclick="showSimulation()">Open Simulation</button></div>
+    </div>
+</section>
+
+<section class="lab-screen" id="lab-screen" style="display: none;">
+
+<div class="lab-header">
+    <div class="lab-info">
+        <h1>Density &amp; Buoyancy Lab</h1>
+        <p class="lab-summary">Control object weight, select the shape, and uncover how density determines floating behavior. The scale and tank stay visible while the quiz mode is only one click away.</p>
+    </div>
+    <div class="lab-actions">
+        <button onclick="toggleQuizMode()" class="btn-quiz">Enter Quiz Mode</button>
+    </div>
+</div>
+
+<!-- Quiz Mode Modal -->
+<div id="quiz-modal" class="quiz-modal">
+    <div style="background: #0f172a; border: 2px solid #38d9ff; border-radius: 16px; padding: 40px; width: 90%; max-width: 700px; color: #f8fafc; margin: auto; margin-top: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 12px;">
+            <h2 style="margin: 0; color: #38d9ff;">Simulation Quiz Challenge</h2>
+            <button onclick="toggleQuizMode()" style="background: #ff6b8a; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600;">Close</button>
+        </div>
+        <p id="quiz-draft-status" style="margin: 0 0 18px; color: #8aa0ba; line-height: 1.5;">Draft answers save automatically, so you can switch back to the simulation anytime.</p>
+
+        <div id="quiz-signup-screen" style="display: none;">
+            <div class="signup-card" style="max-width: 100%; padding: 0;">
+                <h2 style="text-align: center; color: #38d9ff; margin-top: 0;">Student Sign Up</h2>
+                <p style="text-align: center; color: #8aa0ba; margin-bottom: 20px;">Sign up once to unlock the simulation quiz.</p>
+                <div class="input-group">
+                    <label>Student ID:</label>
+                    <input type="text" id="quiz-student-id" placeholder="Enter your student ID">
+                    <label>Last Name:</label>
+                    <input type="text" id="quiz-lastName" placeholder="Halimbawa: Dela Cruz">
+                    <label>First Name:</label>
+                    <input type="text" id="quiz-firstName" placeholder="Halimbawa: Juan">
+                    <label>Middle Name:</label>
+                    <input type="text" id="quiz-middleName" placeholder="Halimbawa: Protacio">
+                    <label>Course & Section:</label>
+                    <input type="text" id="quiz-course-section" placeholder="Enter your course and section">
+                </div>
+                <p style="font-size: 0.8rem; color: #8aa0ba; margin-top: 8px; margin-bottom: 0;">Use the same student ID each time to keep retakes connected to the same student profile.</p>
+                <button type="button" onclick="handleQuizSignUp()" class="sim-primary-btn" style="width: 100%; margin-top: 10px;">Start Quiz</button>
+                <p id="quiz-signup-error" style="color: #ff6b8a; font-size: 0.85rem; margin-top: 10px; display: none; text-align: center;">Please fill out all fields!</p>
+            </div>
+        </div>
+
+        <div id="sim-quiz-content-screen" style="display: none;">
+            <div id="quiz-question-display" style="margin-bottom: 20px; padding: 20px; background: rgba(56, 217, 255, 0.08); border-left: 4px solid #38d9ff; border-radius: 8px;">
+                <div style="font-size: 0.85rem; color: #8aa0ba; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;" id="quiz-progress"></div>
+                <h3 id="quiz-q-text" style="margin: 0; color: #f8fafc; font-size: 1.3rem;"></h3>
+            </div>
+            
+            <div id="quiz-hint-display" style="margin-bottom: 20px; padding: 15px; background: rgba(46, 230, 166, 0.08); border-left: 4px solid #2ee6a6; border-radius: 8px; color: #d7fff0; font-size: 0.95rem; line-height: 1.6; display: none;"></div>
+            
+            <div id="quiz-answer-section" style="margin-top: 25px; min-height: 200px;">
+            </div>
+
+            <div id="quiz-action-buttons" style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px;">
+                <button type="button" id="lock-in-btn" onclick="submitQuizAnswer()" class="sim-primary-btn" style="flex: 1; min-width: 180px;">Lock In Answer</button>
+                <button type="button" id="clear-draft-btn" onclick="clearQuizDraft()" class="btn-reset" style="flex: 1; min-width: 180px;">Clear Draft</button>
+            </div>
+            
+            <div id="quiz-feedback" style="margin-top: 20px; padding: 15px; border-radius: 8px; display: none;" class="quiz-feedback"></div>
+        </div>
+    </div>
+</div>
+
+<div class="sim-layout">
+    <div class="scale-lab-container">
+        <div class="sim-section-header">
+            <div class="sim-section-label">SIMULATION 1:</div>
+            <h3 class="sim-section-title">Density Weighing Scale</h3>
+        </div>
+        <div class="digital-scale">
+            <div class="scale-plate" id="scale-plate">
+                <div id="placed-object"></div>
+            </div>
+            <div class="scale-body">
+                <div class="digital-readout">
+                    <span id="density-result">0.00</span><span id="density-unit" class="unit">Density result</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tank-sim-container" class="sim-section-container">
+        <div class="sim-section-header">
+            <div class="sim-section-label">SIMULATION 2:</div>
+            <h3 class="sim-section-title">Buoyancy Submersion Test</h3>
+        </div>
+        <div id="tank">
+            <div id="water">
+                <div class="waves-container">
+                    <svg class="waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+                        <defs><path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" /></defs>
+                        <g class="parallax">
+                            <use href="#gentle-wave" x="48" y="0" />
+                            <use href="#gentle-wave" x="48" y="3" />
+                            <use href="#gentle-wave" x="48" y="5" />
+                            <use href="#gentle-wave" x="48" y="7" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+            <div id="particle-container"></div>
+            <div id="object"></div>
+        </div>
+        <button onclick="testBuoyancy()" style="margin-top: 20px; width: 220px; padding: 12px; font-size: 1rem;">Submerge Object</button>
+    </div>
+
+    <div class="card control-panel">
+        <div class="control-grid">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>Object Mass (kg):</label>
+                <input type="number" id="mass-input" min="0" max="10000" step="any" value="0" oninput="calculateWeight()">
+                <div id="direct-volume-control" style="display: none; margin-top: 10px;">
+                    <label>Object Volume (m&sup3;):</label>
+                    <input type="number" id="dim-v" value="1" min="0" step="any" oninput="calculateWeight()">
+                </div>
+            </div>
+            <div class="input-group" style="margin-bottom: 0;">
+                <label>Object Shape Choices:</label>
+                <div class="shape-choice-buttons">
+                    <button type="button" id="regular-shapes-btn" class="shape-choice-btn active" onclick="setShapeCategory('regular')">Regular Shape</button>
+                    <button type="button" id="irregular-shapes-btn" class="shape-choice-btn" onclick="setShapeCategory('irregular')">Irregular Shape</button>
+                </div>
+                <select id="shape-select" onchange="updateShapeInputs()"></select>
+            </div>
+        </div>
+        
+        <div id="dimension-inputs" class="input-group"></div>
+        <div id="fluid-control" class="input-group" style="display: none; margin-bottom: 10px;">
+            <label>Select Fluid:</label>
+            <select id="liquid-select" onchange="changeLiquid()" style="width: 100%; padding: 10px; box-sizing: border-box; margin-top: 5px;"></select>
+        </div>
+        <div class="info-box">
+            <p style="margin: 0; font-weight: bold; color: #1e293b;" id="liquid-name">Fluid: Fresh Water</p>
+            <p style="margin: 5px 0 0 0; color: #475569;" id="liquid-density">Density: 1000 kg/mÂ³</p>
+        </div>
+        
+        <button onclick="resetScale()" class="btn-reset" style="width: 100%; margin: 10px 0;">Reset Lab</button>
+    </div>
+</div>
+
+<div class="card solution-analysis-card">
+    <h3>Solution & Analysis</h3>
+    <table class="solution-table">
+        <thead>
+            <tr>
+                <th>Formula</th>
+                <th>Substitution</th>
+                <th>Results</th>
+                <th>Analysis</th>
+            </tr>
+        </thead>
+        <tbody id="analysis-body"></tbody>
+    </table>
+</div>
+
+
+</section>
+
+</div>
+
+<script>
+// Global Physics Constants
+const GRAVITY = 9.81;       // Acceleration due to gravity in m/sÂ²
+
+// Liquid properties: name, density (kg/m³), color
+const LIQUIDS = {
+    water: {
+        name: "Fresh Water",
+        density: 1000,
+        surface: "rgba(116, 219, 255, 0.52)",
+        mid: "rgba(38, 151, 218, 0.84)",
+        deep: "rgba(11, 84, 148, 0.94)",
+        glow: "rgba(125, 226, 255, 0.42)",
+        wave: "#7ee6ff",
+        particle: "#b9f4ff"
+    },
+    seawater: {
+        name: "Sea Water",
+        density: 1025,
+        surface: "rgba(45, 190, 207, 0.5)",
+        mid: "rgba(16, 104, 142, 0.9)",
+        deep: "rgba(5, 54, 89, 0.98)",
+        glow: "rgba(38, 198, 218, 0.34)",
+        wave: "#50d6df",
+        particle: "#9debf0"
+    },
+    oil: {
+        name: "Olive Oil",
+        density: 920,
+        surface: "rgba(246, 211, 105, 0.58)",
+        mid: "rgba(168, 135, 28, 0.9)",
+        deep: "rgba(92, 73, 11, 0.98)",
+        glow: "rgba(250, 204, 21, 0.34)",
+        wave: "#f5d76e",
+        particle: "#ffe9a6"
+    }
+};
+
+let currentLiquid = "water"; // Default liquid
+let WATER_DENSITY = LIQUIDS[currentLiquid].density;
+
+const SHAPE_OPTIONS = {
+    regular: [
+        { value: "rectangle", label: "Rectangular Block" },
+        { value: "cube", label: "Cube (sï¿½)" },
+        { value: "sphere", label: "Sphere (4/3prï¿½)" },
+        { value: "cylinder", label: "Cylinder (prï¿½h)" },
+    ],
+    irregular: [
+        { value: "granite", label: "Granite Rock" },
+        { value: "coal", label: "Coal Chunk" },
+        { value: "quartz", label: "Quartz Crystal" },
+        { value: "seashell", label: "Seashell" },
+        { value: "driftwood", label: "Driftwood Piece" },
+        { value: "pumice", label: "Pumice Stone" }
+    ]
+};
+
+window.onload = () => {
+    setShapeCategory("regular");
+    initializeLiquidSelector();
+};
+
+function initializeLiquidSelector() {
+    const select = document.getElementById("liquid-select");
+    if (select) {
+        select.innerHTML = Object.entries(LIQUIDS).map(([key, liquid]) => 
+            `<option value="${key}">${liquid.name}</option>`
+        ).join("");
+        select.value = currentLiquid;
+    }
+}
+
+function setLiquidSelection(liquidKey) {
+    if (!LIQUIDS[liquidKey]) return;
+
+    currentLiquid = liquidKey;
+    WATER_DENSITY = LIQUIDS[currentLiquid].density;
+    applyLiquidVisuals();
+
+    const select = document.getElementById("liquid-select");
+    if (select) {
+        select.value = currentLiquid;
+    }
+
+    const liquidName = document.getElementById("liquid-name");
+    const liquidDensity = document.getElementById("liquid-density");
+    if (liquidName && liquidDensity) {
+        liquidName.textContent = `Fluid: ${LIQUIDS[currentLiquid].name}`;
+        liquidDensity.textContent = `Density: ${WATER_DENSITY} kg/m³`;
+    }
+}
+
+function applyLiquidVisuals() {
+    const liquid = LIQUIDS[currentLiquid];
+    const water = document.getElementById("water");
+    const tank = document.getElementById("tank");
+    const particles = document.querySelectorAll(".particle");
+
+    if (!liquid || !water) return;
+
+    water.style.setProperty("--liquid-surface", liquid.surface);
+    water.style.setProperty("--liquid-mid", liquid.mid);
+    water.style.setProperty("--liquid-deep", liquid.deep);
+    water.style.setProperty("--liquid-glow", liquid.glow);
+    water.style.setProperty("--liquid-wave", liquid.wave);
+    water.style.setProperty("--liquid-particle", liquid.particle);
+
+    if (tank) {
+        tank.style.setProperty("--liquid-surface", liquid.surface);
+        tank.style.setProperty("--liquid-mid", liquid.mid);
+        tank.style.setProperty("--liquid-deep", liquid.deep);
+        tank.style.setProperty("--liquid-glow", liquid.glow);
+        tank.style.setProperty("--liquid-wave", liquid.wave);
+        tank.style.setProperty("--liquid-particle", liquid.particle);
+    }
+
+    particles.forEach(particle => {
+        particle.style.background = liquid.particle;
+    });
+}
+
+function changeLiquid() {
+    const select = document.getElementById("liquid-select");
+    if (select) {
+        setLiquidSelection(select.value);
+        calculateWeight();
+        currentLiquid = select.value;
+        WATER_DENSITY = LIQUIDS[currentLiquid].density;
+        
+        // Update liquid display
+        const liquidName = document.getElementById("liquid-name");
+        const liquidDensity = document.getElementById("liquid-density");
+        if (liquidName && liquidDensity) {
+            liquidName.textContent = `Fluid: ${LIQUIDS[currentLiquid].name}`;
+            liquidDensity.textContent = `Density: ${WATER_DENSITY} kg/mÂ³`;
+        }
+        
+        calculateWeight(); // Recalculate with new liquid
+    }
+}
+
+function getSafeNumberInputValue(id, fallback = 0) {
+    const input = document.getElementById(id);
+    if (!input) return fallback;
+
+    const value = parseFloat(input.value);
+    return Number.isFinite(value) ? value : fallback;
+}
+
+function setShapeCategory(category) {
+    const select = document.getElementById("shape-select");
+    const massInput = document.getElementById("mass-input");
+    const regularBtn = document.getElementById("regular-shapes-btn");
+    const irregularBtn = document.getElementById("irregular-shapes-btn");
+    const directVolumeControl = document.getElementById("direct-volume-control");
+    const fluidControl = document.getElementById("fluid-control");
+    const liquidInfo = document.querySelector(".info-box");
+    const currentMass = massInput ? massInput.value : "0";
+    const volumeInput = document.getElementById("dim-v");
+    const currentVolume = volumeInput ? volumeInput.value : "";
+    const safeCurrentVolume = parseFloat(currentVolume);
+
+    regularBtn.classList.toggle("active", category === "regular");
+    irregularBtn.classList.toggle("active", category === "irregular");
+    if (directVolumeControl) {
+        directVolumeControl.style.display = "block";
+    }
+    if (fluidControl) {
+        fluidControl.style.display = category === "irregular" ? "block" : "none";
+    }
+    if (liquidInfo) {
+        liquidInfo.style.display = category === "irregular" ? "block" : "none";
+    }
+    if (category === "regular") {
+        setLiquidSelection("water");
+    }
+    select.innerHTML = SHAPE_OPTIONS[category].map(shape => `<option value="${shape.value}">${shape.label}</option>`).join("");
+    select.value = SHAPE_OPTIONS[category][0].value;
+    if (massInput) {
+        massInput.value = currentMass;
+    }
+    updateShapeInputs();
+    if (massInput) {
+        massInput.value = currentMass;
+    }
+    const activeVolumeInput = document.getElementById("dim-v");
+    if (category === "irregular" && activeVolumeInput) {
+        activeVolumeInput.value = getIrregularPresetVolume(select.value);
+    }
+    calculateWeight();
+    // When switching to irregular shapes, reset the weighing-scale display to zero
+    if (category === "irregular") {
+        try {
+            activeDensity = 0;
+            activeBuoyancyDensity = 0;
+            const resultEl = document.getElementById("density-result");
+            const unitEl = document.getElementById("density-unit");
+            if (resultEl) resultEl.innerText = "0.00";
+            if (unitEl) unitEl.innerText = "Buoyancy result";
+            hideSimulationObjects();
+        } catch (e) {
+            // Non-fatal
+        }
+    }
+}
+
+function showTutorial() {
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("tutorial-screen").style.display = "block";
+    document.getElementById("lab-screen").style.display = "none";
+    setShapeCategory("regular");
+}
+
+function showSimulation() {
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("tutorial-screen").style.display = "none";
+    document.getElementById("lab-screen").style.display = "block";
+    setShapeCategory("regular");
+}
+
+function showStart() {
+    document.getElementById("start-screen").style.display = "flex";
+    document.getElementById("tutorial-screen").style.display = "none";
+    document.getElementById("lab-screen").style.display = "none";
+}
+
+function returnToMenu() {
+    location.href = "index.html";
+}
+
+function isDirectVolumeShape(shape) {
+    return ["granite", "coal", "quartz", "seashell", "driftwood", "pumice"].includes(shape);
+}
+
+function isRegularShape(shape) {
+    return ["rectangle", "cube", "sphere", "cylinder"].includes(shape);
+}
+
+function hideSimulationObjects() {
+    const obj = document.getElementById("placed-object");
+    const tankObj = document.getElementById("object");
+    obj.style.display = "none";
+    tankObj.style.display = "none";
+}
+
+function resetSimulationValues() {
+    const massInput = document.getElementById("mass-input");
+    const densityResult = document.getElementById("density-result");
+    const plate = document.getElementById("scale-plate");
+
+    if (massInput) {
+        massInput.value = 0;
+    }
+
+    activeDensity = 0;
+    activeBuoyancyDensity = 0;
+
+    if (densityResult) {
+        densityResult.innerText = "0.00";
+    }
+
+    if (plate) {
+        plate.style.transform = "translateY(0)";
+    }
+
+    hideSimulationObjects();
+}
+
+const MATERIAL_DENSITIES = {
+    granite: 2700,
+    coal: 1350,
+    quartz: 2650,
+    seashell: 2800,
+    driftwood: 600,
+    pumice: 950
+};
+
+function getMaterialDensity(shape) {
+    return MATERIAL_DENSITIES[shape] || null;
+}
+
+const SOLID_SINKING_MATERIALS = ["granite", "coal", "quartz", "seashell"];
+const NATURALLY_FLOATING_MATERIALS = ["driftwood", "pumice"];
+
+function getBuoyancyDensity(shape, typedDensity) {
+    const materialDensity = getMaterialDensity(shape);
+    if (NATURALLY_FLOATING_MATERIALS.includes(shape) && materialDensity) {
+        return materialDensity;
+    }
+
+    if (SOLID_SINKING_MATERIALS.includes(shape) && materialDensity) {
+        return Math.max(typedDensity || 0, materialDensity);
+    }
+
+    return typedDensity;
+}
+
+const IRREGULAR_PRESETS = {
+    granite: { volume: 0.01 },
+    coal: { volume: 0.01 },
+    quartz: { volume: 0.01 },
+    seashell: { volume: 0.002 },
+    driftwood: { volume: 0.004 },
+    pumice: { volume: 0.004 }
+};
+
+function getIrregularPresetVolume(shape) {
+    const preset = IRREGULAR_PRESETS[shape];
+    return preset ? preset.volume : 0.01;
+}
+
+function syncIrregularVolumeInput(shape) {
+    if (!isDirectVolumeShape(shape)) return;
+
+    const volumeInput = document.getElementById("dim-v");
+    if (volumeInput) {
+        const currentVolume = parseFloat(volumeInput.value);
+        if (!Number.isFinite(currentVolume) || currentVolume <= 0) {
+            volumeInput.value = getIrregularPresetVolume(shape);
+        }
+    }
+}
+
+function setVolumeInputValue(volume) {
+    const volumeInput = document.getElementById("dim-v");
+    if (volumeInput) {
+        volumeInput.value = Number.isFinite(volume) ? volume.toFixed(4) : "0";
+    }
+}
+
+function updateShapeInputs() {
+    const shape = document.getElementById("shape-select").value;
+    const container = document.getElementById("dimension-inputs");
+    const directVolumeControl = document.getElementById("direct-volume-control");
+    let html = "";
+
+    if (directVolumeControl) {
+        directVolumeControl.style.display = isRegularShape(shape) || isDirectVolumeShape(shape) ? "block" : "none";
+    }
+
+    if (shape === "rectangle") {
+        html = `
+            <label>Length (m):</label>
+            <input type="number" id="dim-l" value="1" min="0" step="any" oninput="updateRectangleVolumeFromDimensions()">
+            <label>Width (m):</label>
+            <input type="number" id="dim-w" value="1" min="0" step="any" oninput="updateRectangleVolumeFromDimensions()">
+            <label>Height (m):</label>
+            <input type="number" id="dim-h" value="1" min="0" step="any" oninput="updateRectangleVolumeFromDimensions()">
+        `;
+    } else if (shape === "cube") {
+        html = `
+            <label>Side (m):</label>
+            <input type="number" id="dim-side" value="1" min="0" step="any" oninput="updateCubeVolumeFromSide()">
+        `;
+    } else if (shape === "sphere") {
+        html = `<p style="margin: 8px 0 0; color: #8aa0ba; font-size: 0.8rem; line-height: 1.4;">Use the editable volume below the mass to calculate density for this regular shape.</p>`;
+    } else if (shape === "cylinder") {
+        html = `
+            <label>Radius (m):</label>
+            <input type="number" id="dim-r" value="1" min="0" step="any" oninput="updateCylinderVolumeFromDimensions()">
+            <label>Height (m):</label>
+            <input type="number" id="dim-h" value="1" min="0" step="any" oninput="updateCylinderVolumeFromDimensions()">
+        `;
+    } else if (isDirectVolumeShape(shape)) {
+        setVolumeInputValue(getIrregularPresetVolume(shape));
+        html = `<p style="margin: 8px 0 0; color: #8aa0ba; font-size: 0.8rem; line-height: 1.4;">This irregular object starts with a displaced volume of ${getIrregularPresetVolume(shape)} m&sup3;. You can edit the object volume above, then test buoyancy.</p>`;
+    }
+    container.innerHTML = html;
+
+    if (shape === "rectangle") {
+        updateRectangleVolumeFromDimensions();
+        return;
+    }
+    if (shape === "cube") {
+        updateCubeVolumeFromSide();
+        return;
+    }
+    if (shape === "cylinder") {
+        updateCylinderVolumeFromDimensions();
+        return;
+    }
+
+    syncIrregularVolumeInput(shape);
+    calculateWeight();
+}
+
+function updateRectangleVolumeFromDimensions() {
+    const shape = document.getElementById("shape-select").value;
+    if (shape !== "rectangle") {
+        calculateWeight();
+        return;
+    }
+
+    const length = parseFloat(getInputValue("dim-l") || 0);
+    const width = parseFloat(getInputValue("dim-w") || 0);
+    const height = parseFloat(getInputValue("dim-h") || 0);
+    const safeLength = Number.isFinite(length) ? length : 0;
+    const safeWidth = Number.isFinite(width) ? width : 0;
+    const safeHeight = Number.isFinite(height) ? height : 0;
+
+    setVolumeInputValue(safeLength * safeWidth * safeHeight);
+
+    calculateWeight();
+}
+
+function updateCubeVolumeFromSide() {
+    const side = parseFloat(getInputValue("dim-side") || 0);
+    const safeSide = Number.isFinite(side) ? side : 0;
+
+    setVolumeInputValue(Math.pow(safeSide, 3));
+    calculateWeight();
+}
+
+function updateCylinderVolumeFromDimensions() {
+    const radius = parseFloat(getInputValue("dim-r") || 0);
+    const height = parseFloat(getInputValue("dim-h") || 0);
+    const safeRadius = Number.isFinite(radius) ? radius : 0;
+    const safeHeight = Number.isFinite(height) ? height : 0;
+
+    setVolumeInputValue(Math.PI * Math.pow(safeRadius, 2) * safeHeight);
+    calculateWeight();
+}
+
+function resetScale() {
+    document.getElementById("mass-input").value = 0;
+    setShapeCategory("regular");
+}
+
+function updateAnalysisTable(m, v, density, shape) {
+    const tbody = document.getElementById("analysis-body");
+    if (m <= 0 || v <= 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #8aa0ba; padding: 40px; font-style: italic;">Provide valid mass and dimensions to generate the density and buoyancy analysis.</td></tr>';
+        return;
+    }
+
+    let volFormula = "";
+    if (shape === "rectangle") volFormula = "V = L × W × H";
+    else if (shape === "cube") volFormula = "V = s³";
+    else if (shape === "sphere") volFormula = "V = 4/3πr³";
+    else if (shape === "cylinder") volFormula = "V = πr²h";
+    else if (isDirectVolumeShape(shape)) volFormula = "V = displaced volume";
+
+    if (isRegularShape(shape)) {
+        tbody.innerHTML = `
+            <tr>
+                <td style="vertical-align: top; padding: 20px; min-width: 260px;">
+                    <div style="background: #08111f; padding: 22px; border-radius: 16px; border: 2px solid #38d9ff; box-shadow: 0 0 24px rgba(56,217,255,0.18);">
+                        <div style="font-size: 1.35rem; font-weight: 900; color: #fff; margin-bottom: 12px;">Density Simulation</div>
+                        <div style="color: #cbd5e1; line-height: 1.7;">&rho; = m / V<br>${volFormula}</div>
+                    </div>
+                </td>
+                <td style="font-size: 1rem; vertical-align: top; font-family: 'Courier New', monospace; color: #f8fafc; line-height: 1.8;">
+                    Density:<br>&rho; = ${m.toFixed(2)} / ${v.toFixed(4)}<br>&rho; = ${density.toFixed(2)} kg/m&sup3;
+                </td>
+                <td style="vertical-align: top; text-align: center; padding: 0 20px;">
+                    <div style="display: inline-block; padding: 22px; background: rgba(46,230,166,0.06); border-radius: 16px; border: 3px solid #38d9ff; box-shadow: 0 0 20px rgba(56,217,255,0.12);">
+                        <div style="font-size: 1.4rem; font-weight: 900; color: #38d9ff;">Density</div>
+                        <div style="margin-top: 10px; font-size: 1.35rem; font-weight: 900; color: #d8e8f6;">${density.toFixed(2)} kg/m³</div>
+                        <div style="font-size: 0.8rem; color: #8aa0ba; font-weight: 900; letter-spacing: 1px; margin-top: 8px;">DENSITY RESULT (weighing scale)</div>
+                    </div>
+                </td>
+                <td style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1; vertical-align: top;">
+                    <div style="border-left: 5px solid #38d9ff; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 0 15px 15px 0;">
+                        <div>Volume: <strong>${v.toFixed(4)} m&sup3;</strong></div>
+                        <div>Calculated density: <strong>${density.toFixed(2)} kg/m&sup3;</strong></div>
+                        <div style="margin-top: 14px; font-weight: 700; color: #2ee6a6;">Result: Buoyancy result shown in the simulation</div>
+                        <div style="margin-top: 8px;">Regular shapes are measured in Simulation 1, and the analysis now uses the same buoyancy wording as the irregular-object results.</div>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    const materialDensity = getMaterialDensity(shape);
+    const buoyancyDensity = getBuoyancyDensity(shape, density);
+    const buoyantForce = WATER_DENSITY * GRAVITY * v;
+    const effectiveMass = buoyancyDensity * v;
+    const weightForce = effectiveMass * GRAVITY;
+    const displayMassForWeight = buoyancyDensity !== density ? effectiveMass : m;
+    const neutralTolerance = 0.001;
+    const isNeutral = Math.abs(buoyancyDensity - WATER_DENSITY) <= neutralTolerance;
+    const willFloat = buoyancyDensity < WATER_DENSITY && !isNeutral;
+    const status = isNeutral ? "Suspends" : (willFloat ? "Floats" : "Sinks");
+    const liquidName = LIQUIDS[currentLiquid].name.toLowerCase();
+    const lockedSolid = SOLID_SINKING_MATERIALS.includes(shape) && buoyancyDensity > density;
+    const naturalFloatMaterial = NATURALLY_FLOATING_MATERIALS.includes(shape) && buoyancyDensity !== density && willFloat;
+    const reason = isNeutral
+        ? `The object density matches ${liquidName}, so it stays suspended instead of rising or falling.`
+        : lockedSolid
+        ? `This is a solid dense material, so the buoyancy test uses its realistic material density instead of letting a low typed mass make it float.`
+        : naturalFloatMaterial
+        ? `This material has a realistic buoyancy density lower than ${liquidName}, so it floats in this liquid.`
+        : willFloat
+        ? `The object density is lower than ${liquidName}, so the buoyant force can support it before it fully sinks.`
+        : `The object density is higher than ${liquidName}, so its weight is greater than the buoyant force when fully submerged.`;
+    const materialNote = materialDensity
+        ? `<div style="margin-top: 10px; color: #facc15; font-weight: 700;">Realistic material density: ${materialDensity} kg/m&sup3;</div>`
+        : "";
+    const buoyancyDensityNote = buoyancyDensity !== density
+        ? `<div>Buoyancy density used: <strong>${buoyancyDensity.toFixed(2)} kg/m&sup3;</strong></div>`
+        : "";
+    tbody.innerHTML = `
+        <tr>
+            <td style="vertical-align: top; padding: 20px; min-width: 260px;">
+                <div style="background: #08111f; padding: 22px; border-radius: 16px; border: 2px solid #38d9ff; box-shadow: 0 0 24px rgba(56,217,255,0.18);">
+                    <div style="font-size: 1.35rem; font-weight: 900; color: #fff; margin-bottom: 12px;">Density Simulation</div>
+                    <div style="color: #cbd5e1; line-height: 1.7;">ρ = m / V<br>${volFormula}</div>
+                    <div style="font-size: 1.35rem; font-weight: 900; color: #fff; margin: 18px 0 12px;">Buoyancy Simulation</div>
+                    <div style="color: #cbd5e1; line-height: 1.7;">F<sub>b</sub> = ρ<sub>fluid</sub>gV<br>W = mg<br>Compare F<sub>b</sub> and W</div>
+                </div>
+            </td>
+            <td style="font-size: 1rem; vertical-align: top; font-family: 'Courier New', monospace; color: #f8fafc; line-height: 1.8;">
+                Density:<br>ρ = ${m.toFixed(2)} / ${v.toFixed(4)}<br>ρ = ${density.toFixed(2)} kg/m³<br><br>
+                Buoyancy:<br>F<sub>b</sub> = ${WATER_DENSITY} × ${GRAVITY} × ${v.toFixed(4)}<br>F<sub>b</sub> = ${buoyantForce.toFixed(2)} N<br>W = ${displayMassForWeight.toFixed(2)} × ${GRAVITY}<br>W = ${weightForce.toFixed(2)} N
+            </td>
+            <td style="vertical-align: top; text-align: center; padding: 0 20px;">
+                <div style="display: inline-block; padding: 22px; background: rgba(46,230,166,0.06); border-radius: 16px; border: 3px solid ${willFloat ? '#2ee6a6' : '#ff6b8a'}; box-shadow: 0 0 20px rgba(56,217,255,0.12);">
+                        <div style="font-size: 1.4rem; font-weight: 900; color: ${willFloat ? '#2ee6a6' : '#ff6b8a'};">${status}</div>
+                    <div style="font-size: 0.8rem; color: #8aa0ba; font-weight: 900; letter-spacing: 1px; margin-top: 6px;">${LIQUIDS[currentLiquid].name.toUpperCase()}</div>
+                    <div style="margin-top: 12px; color: #d8e8f6; font-weight: 800;">Buoyancy Result</div>
+                    <div style="margin-top: 8px; font-size: 1.1rem; font-weight: 800; color: #d8e8f6;">${buoyancyDensity.toFixed(2)} kg/m³</div>
+                </div>
+            </td>
+            <td style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1; vertical-align: top;">
+                <div style="border-left: 5px solid ${willFloat ? '#38d9ff' : '#ff6b8a'}; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 0 15px 15px 0;">
+                    <div>${LIQUIDS[currentLiquid].name} density: <strong>${WATER_DENSITY} kg/m³</strong></div>
+                    <div>Calculated density: <strong>${density.toFixed(2)} kg/m³</strong></div>
+                    <div>Buoyant force: <strong>${buoyantForce.toFixed(2)} N</strong></div>
+                    <div>Object weight: <strong>${weightForce.toFixed(2)} N</strong></div>
+                    ${materialNote}
+                    ${buoyancyDensityNote}
+                    <div style="margin-top: 14px; font-weight: 700; color: ${willFloat ? '#2ee6a6' : '#ff6b8a'};">Result: ${status} in ${LIQUIDS[currentLiquid].name}</div>
+                    <div style="margin-top: 8px;">${reason}</div>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+let globalSY = 1; // Track transformed height for buoyancy physics
+let activeDensity = 0; // Stores the density shown by the weighing scale.
+let activeBuoyancyDensity = 0; // Matches the density used by the analysis result.
+
+function getInputValue(id) {
+    const input = document.getElementById(id);
+    return input ? input.value : 0;
+}
+
+function testBuoyancy() {
+    const m = getSafeNumberInputValue("mass-input", 0);
+    const shape = document.getElementById("shape-select").value;
+
+    if (!isDirectVolumeShape(shape)) {
+        return;
+    }
+
+    calculateWeight();
+    const density = activeBuoyancyDensity || activeDensity;
+
+    if (m <= 0 || isNaN(density) || density === 0) {
+        alert("Please set a mass and valid dimensions first!");
+        return;
+    }
+
+    const tankObj = document.getElementById("object");
+    const sourceObj = document.getElementById("placed-object");
+    const tank = document.getElementById("tank");
+    const water = document.getElementById("water");
+    const tankHeight = tank.clientHeight;
+    const objectBaseHeight = 68;
+    const bottomPadding = 14;
+    const waterSurfaceTop = water.offsetTop;
+    const objVisualHeight = objectBaseHeight * globalSY;
+
+    // Prepare for simulation
+    if (sourceObj && sourceObj.innerHTML.trim()) {
+        tankObj.innerHTML = sourceObj.innerHTML;
+    }
+    tankObj.style.visibility = "visible";
+    tankObj.style.opacity = "1";
+    tankObj.style.zIndex = "6";
+    tankObj.style.transition = "none";
+    tankObj.style.top = "0px"; // Start inside the visible tank.
+    tankObj.style.bottom = "auto";
+    tankObj.style.left = "50%";
+    tankObj.style.width = objectBaseHeight + "px";
+    tankObj.style.height = objectBaseHeight + "px";
+    tankObj.style.display = "block";
+    
+    setTimeout(() => {
+        let targetTop;
+        let duration;
+
+        if (density >= WATER_DENSITY) {
+            targetTop = tankHeight - objectBaseHeight - bottomPadding;
+            duration = 1800; // Fast sink
+        } else {
+            // Archimedes settling: submerged fraction equals object density / water density.
+            const submergedHeight = objVisualHeight * (density / WATER_DENSITY);
+            targetTop = waterSurfaceTop + submergedHeight - objectBaseHeight;
+            duration = 3200; // Buoyant settling
+        }
+
+        const minTop = 8;
+        const maxTop = tankHeight - objectBaseHeight - bottomPadding;
+        targetTop = Math.max(minTop, Math.min(maxTop, targetTop));
+
+        triggerWaves();
+        tankObj.style.transition = `top ${duration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+        tankObj.style.top = targetTop + "px";
+    }, 100);
+}
+
+function calculateWeight() {
+    const m = getSafeNumberInputValue("mass-input", 0);
+    const shape = document.getElementById("shape-select").value;
+    let v = 0, sx = 1, sy = 1, sz = 1;
+    const k = 0.42;
+    const maxS = 1.15;
+    const minIrregularScale = 0.36;
+    const regularShape = isRegularShape(shape);
+    const irregularShape = isDirectVolumeShape(shape);
+
+    if (shape === "rectangle") {
+        const length = parseFloat(getInputValue("dim-l") || 0);
+        const width = parseFloat(getInputValue("dim-w") || 0);
+        const height = parseFloat(getInputValue("dim-h") || 0);
+        const safeLength = Number.isFinite(length) ? length : 0;
+        const safeWidth = Number.isFinite(width) ? width : 0;
+        const safeHeight = Number.isFinite(height) ? height : 0;
+        const typedVolume = getSafeNumberInputValue("dim-v", 0);
+        v = Number.isFinite(typedVolume) ? typedVolume : safeLength * safeWidth * safeHeight;
+        sx = Math.min(Math.max(safeLength, 0) * k, maxS);
+        sy = Math.min(Math.max(safeHeight, 0) * k, maxS);
+        sz = Math.min(Math.max(safeWidth, 0) * k, maxS);
+    } else if (shape === "cube") {
+        v = getSafeNumberInputValue("dim-v", 0);
+        const baseScale = Math.pow(Math.max(v, 0), 1/3) * k;
+        sx = sy = sz = Math.min(baseScale, maxS);
+    } else if (shape === "sphere") {
+        v = getSafeNumberInputValue("dim-v", 0);
+        const diameter = Math.pow((6 * Math.max(v, 0)) / Math.PI, 1/3);
+        sx = sy = sz = Math.min(diameter * k, maxS);
+    } else if (shape === "cylinder") {
+        v = getSafeNumberInputValue("dim-v", 0);
+        const baseScale = Math.pow(Math.max(v, 0), 1/3) * k;
+        sx = sz = Math.min(baseScale, maxS); sy = Math.min(baseScale * 1.35, maxS);
+    } else if (isDirectVolumeShape(shape)) {
+        const volumeInput = document.getElementById("dim-v");
+        const typedVolume = getSafeNumberInputValue("dim-v", 0);
+        v = typedVolume > 0 ? typedVolume : getIrregularPresetVolume(shape);
+        if (volumeInput && typedVolume <= 0) {
+            volumeInput.value = v;
+        }
+        const baseScale = Math.pow(v, 1/3) * k * 1.75;
+        sx = sy = sz = Math.max(minIrregularScale, Math.min(baseScale, maxS));
+    }
+    globalSY = sy;
+    const calculatedDensity = v > 0 ? m / v : 0;
+    activeDensity = calculatedDensity;
+    activeBuoyancyDensity = irregularShape
+        ? getBuoyancyDensity(shape, calculatedDensity)
+        : getBuoyancyDensity(shape, activeDensity);
+
+    // Show density for regular shapes, and buoyancy density for irregular shapes
+    const resultEl = document.getElementById("density-result");
+    const unitEl = document.getElementById("density-unit");
+    if (resultEl && unitEl) {
+        if (irregularShape) {
+            // Show buoyancy density used for irregular objects
+            resultEl.innerText = Number.isFinite(activeBuoyancyDensity) ? activeBuoyancyDensity.toFixed(2) : "0.00";
+            unitEl.innerText = "Buoyancy result";
+        } else {
+            resultEl.innerText = Number.isFinite(activeDensity) ? activeDensity.toFixed(2) : "0.00";
+            unitEl.innerText = "Density result";
+        }
+    }
+
+    const obj = document.getElementById("placed-object");
+    const tankObj = document.getElementById("object");
+    const plate = document.getElementById("scale-plate");
+    if (plate) {
+        plate.style.transform = "none";
+    }
+
+    if (m > 0) {
+        if (shape === "sphere") {
+            obj.innerHTML = '<div class="sphere-3d"></div>';
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-10deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else if (shape === "cylinder") {
+            obj.innerHTML = `
+                <div class="cylinder-3d">
+                    <div class="side"></div>
+                    <div class="cap top-cap"></div>
+                    <div class="cap bottom-cap"></div>
+                </div>`;
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-20deg) rotateY(15deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else if (shape === "cube") {
+            obj.innerHTML = `
+                <div class="cube-face front"></div><div class="cube-face back"></div>
+                <div class="cube-face top"></div><div class="cube-face bottom"></div>
+                <div class="cube-face left"></div><div class="cube-face right"></div>
+            `;
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-25deg) rotateY(-45deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else if (shape === "granite") {
+            obj.innerHTML = '<div class="granite-3d"></div>';
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-15deg) rotateY(20deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else if (shape === "coal") {
+            obj.innerHTML = '<div class="coal-3d"></div>';
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-20deg) rotateY(40deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else if (shape === "quartz") {
+            obj.innerHTML = '<div class="quartz-3d"></div>';
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-12deg) rotateY(-18deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else if (shape === "seashell") {
+            obj.innerHTML = '<div class="seashell-3d"></div>';
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-18deg) rotateY(22deg) scale3d(${sx}, ${sy * 0.78}, ${sz})`;
+        } else if (shape === "driftwood") {
+            obj.innerHTML = '<div class="driftwood-3d"></div>';
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-8deg) rotateY(28deg) scale3d(${sx * 1.22}, ${sy * 0.52}, ${sz})`;
+        } else if (shape === "pumice") {
+            obj.innerHTML = '<div class="pumice-3d"></div>';
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-14deg) rotateY(12deg) scale3d(${sx}, ${sy}, ${sz})`;
+        } else {
+            // Rectangle
+            obj.innerHTML = `
+                <div class="face front"></div><div class="face back"></div>
+                <div class="face top"></div><div class="face bottom"></div>
+                <div class="face left"></div><div class="face right"></div>
+            `;
+            obj.style.borderRadius = "0";
+            obj.style.background = "none";
+            obj.style.transform = `rotateX(-20deg) rotateY(30deg) scale3d(${sx}, ${sy}, ${sz})`;
+        }
+        
+        tankObj.innerHTML = obj.innerHTML;
+        const tankScaleLimit = 0.72;
+        const tankTransform = obj.style.transform.replace(/scale3d\(([^)]+)\)/, (_, values) => {
+            const tankScales = values.split(",").map(value => {
+                const scale = parseFloat(value.trim());
+                return Math.min(scale, tankScaleLimit).toFixed(3);
+            });
+            globalSY = parseFloat(tankScales[1]);
+            return `scale3d(${tankScales.join(", ")})`;
+        });
+        tankObj.style.transform = `translateX(-50%) ${tankTransform}`;
+        tankObj.style.background = "none";
+        tankObj.style.border = "0";
+        tankObj.style.borderRadius = "0";
+        tankObj.style.boxShadow = "none";
+
+        // (preview removed) keep visual updates only on plate/tank
+        tankObj.style.transition = "none";
+        tankObj.style.top = "20px";
+
+        if (regularShape) {
+            obj.style.display = "block";
+            tankObj.style.display = "none";
+            plate.style.transform = "translateY(0)";
+            if (resultEl && unitEl) { resultEl.innerText = Number.isFinite(activeDensity) ? activeDensity.toFixed(2) : "0.00"; unitEl.innerText = "Density result"; }
+        } else if (irregularShape) {
+            obj.style.display = "none";
+            tankObj.style.display = "none";
+            plate.style.transform = "translateY(0)";
+            if (resultEl && unitEl) { resultEl.innerText = Number.isFinite(activeBuoyancyDensity) ? activeBuoyancyDensity.toFixed(2) : "0.00"; unitEl.innerText = "Buoyancy result"; }
+        } else {
+            hideSimulationObjects();
+            plate.style.transform = "translateY(0)";
+        }
+    } else {
+        hideSimulationObjects();
+        plate.style.transform = "translateY(0)";
+        activeDensity = 0;
+        activeBuoyancyDensity = 0;
+        document.getElementById("density-result").innerText = "0.00";
+    }
+    updateAnalysisTable(m, v, activeDensity, shape);
+}
+
+// Quiz Mode Functionality
+const quizQuestions = [
+    {
+        q: "Try this in Simulation 1: set Mass to 8 kg, choose Cube, and set Side to 2 m. What density is shown?",
+        options: ["0.50 kg/m3", "1.00 kg/m3", "2.00 kg/m3", "4.00 kg/m3"],
+        a: "1.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 8 kg | Step 2: Select Cube | Step 3: Set Side to 2 m | Step 4: The cube volume is 2 x 2 x 2 = 8 m3 | Step 5: Read the density result"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 20 kg, choose Rectangular Block, then set Length 2 m, Width 1 m, Height 1 m. What is the density?",
+        options: ["5.00 kg/m3", "10.00 kg/m3", "20.00 kg/m3", "40.00 kg/m3"],
+        a: "10.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 20 kg | Step 2: Select Rectangular Block | Step 3: Set Length = 2 m, Width = 1 m, Height = 1 m | Step 4: Volume is 2 m3 | Step 5: Read the density"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 31.416 kg, choose Cylinder, then set Radius 1 m and Height 1 m. What density is shown?",
+        options: ["5.00 kg/m3", "10.00 kg/m3", "15.00 kg/m3", "20.00 kg/m3"],
+        a: "10.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 31.416 kg | Step 2: Select Cylinder | Step 3: Set Radius = 1 m and Height = 1 m | Step 4: Volume is about 3.1416 m3 | Step 5: Read the density"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 12 kg, choose Cylinder, then set Radius 1 m and Height 2 m. Which density is closest?",
+        options: ["1.91 kg/m3", "3.82 kg/m3", "6.28 kg/m3", "12.00 kg/m3"],
+        a: "1.91 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 12 kg | Step 2: Select Cylinder | Step 3: Set Radius = 1 m and Height = 2 m | Step 4: Volume is about 6.2832 m3 | Step 5: Read the density"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 27 kg, choose Cube, and set Side to 3 m. What is the density?",
+        options: ["1.00 kg/m3", "3.00 kg/m3", "9.00 kg/m3", "27.00 kg/m3"],
+        a: "1.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 27 kg | Step 2: Select Cube | Step 3: Set Side to 3 m | Step 4: Volume is 27 m3 | Step 5: Read the density"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 4 kg, choose Pumice Stone. The preset volume is 0.004 m3. What density is shown?",
+        options: ["500.00 kg/m3", "700.00 kg/m3", "1000.00 kg/m3", "1400.00 kg/m3"],
+        a: "1000.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 4 kg | Step 2: Click Irregular Shape | Step 3: Select Pumice Stone | Step 4: The preset volume is 0.004 m3 | Step 5: Read the density"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 8 kg, choose Coal Chunk. The preset volume is 0.01 m3. What density is shown?",
+        options: ["600.00 kg/m3", "700.00 kg/m3", "800.00 kg/m3", "900.00 kg/m3"],
+        a: "800.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 8 kg | Step 2: Click Irregular Shape | Step 3: Select Coal Chunk | Step 4: The preset volume is 0.01 m3 | Step 5: Read the density"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 28 kg, choose Granite Rock. The preset volume is 0.01 m3. What density is shown?",
+        options: ["1800.00 kg/m3", "2300.00 kg/m3", "2800.00 kg/m3", "3200.00 kg/m3"],
+        a: "2800.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 28 kg | Step 2: Click Irregular Shape | Step 3: Select Granite Rock | Step 4: The preset volume is 0.01 m3 | Step 5: Read the density"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 2 kg, choose Driftwood Piece. The preset volume is 0.004 m3. What density is shown?",
+        options: ["400.00 kg/m3", "500.00 kg/m3", "600.00 kg/m3", "700.00 kg/m3"],
+        a: "500.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 2 kg | Step 2: Click Irregular Shape | Step 3: Select Driftwood Piece | Step 4: The preset volume is 0.004 m3 | Step 5: Read the density"
+    },
+    {
+        q: "Try this in Simulation 1: set Mass to 5.6 kg, choose Seashell. The preset volume is 0.002 m3. What density is shown?",
+        options: ["1400.00 kg/m3", "2000.00 kg/m3", "2800.00 kg/m3", "3200.00 kg/m3"],
+        a: "2800.00 kg/m3",
+        unit: "kg/m3",
+        hint: "Step 1: Set Mass to 5.6 kg | Step 2: Click Irregular Shape | Step 3: Select Seashell | Step 4: The preset volume is 0.002 m3 | Step 5: Read the density"
+    }
+];
+
+const QUIZ_DRAFT_KEY = "fluid_quiz_draft_v1";
+const QUIZ_STUDENT_KEY = "fluid_quiz_student_v1";
+const QUIZ_DONE_KEY = "quiz_done";
+const QUIZ_RECORDS_KEY = "quiz_records";
+const QUIZ_STUDENT_PROFILES_KEY = "fluid_quiz_student_profiles_v1";
+let quizCurrent = 0;
+let quizScore = 0;
+let selectedAnswer = null;
+let quizAnswers = Array(quizQuestions.length).fill(null);
+let quizLocked = Array(quizQuestions.length).fill(false);
+let quizCompleted = false;
+let quizStudent = null;
+let quizAttemptId = createQuizAttemptId();
+let quizRecordPersisted = false;
+
+function normalizeStudentProfileKey(student) {
+    const studentId = student && student.studentId ? String(student.studentId).trim().toLowerCase() : "";
+    if (studentId) {
+        return `id:${studentId}`;
+    }
+
+    const parts = [
+        student && student.lastName ? student.lastName : "",
+        student && student.firstName ? student.firstName : "",
+        student && student.middleName ? student.middleName : "",
+        student && student.course ? student.course : "",
+        student && student.section ? student.section : ""
+    ];
+
+    return parts.join("|").trim().toLowerCase().replace(/\s+/g, "_");
+}
+
+function findQuizStudentProfile(student) {
+    const profiles = readQuizStudentProfiles();
+    const studentId = student && student.studentId ? String(student.studentId).trim().toLowerCase() : "";
+    if (studentId) {
+        return profiles.find(profile => String(profile.studentId || "").trim().toLowerCase() === studentId) || null;
+    }
+
+    return profiles.find(profile => profile.studentKey === normalizeStudentProfileKey(student)) || null;
+}
+
+function readQuizStudentProfiles() {
+    try {
+        const raw = localStorage.getItem(QUIZ_STUDENT_PROFILES_KEY);
+        return raw ? JSON.parse(raw) : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function saveQuizStudentProfiles(profiles) {
+    try {
+        localStorage.setItem(QUIZ_STUDENT_PROFILES_KEY, JSON.stringify(profiles));
+    } catch (error) {
+        // Student profile storage should never block the quiz flow.
+    }
+}
+
+function upsertQuizStudentProfile(student, record) {
+    if (!student) return null;
+
+    const profiles = readQuizStudentProfiles();
+    const studentKey = normalizeStudentProfileKey(student);
+    const existingIndex = profiles.findIndex(profile => profile.studentKey === studentKey || (student.studentId && String(profile.studentId || "").trim().toLowerCase() === String(student.studentId).trim().toLowerCase()));
+    const profile = {
+        studentKey,
+        studentId: student.studentId || "",
+        lastName: student.lastName || "",
+        firstName: student.firstName || "",
+        middleName: student.middleName || "",
+        course: student.course || "",
+        section: student.section || "",
+        updatedAt: new Date().toISOString(),
+        attemptCount: 1,
+        lastAttemptId: record && record.attemptId ? record.attemptId : "",
+        lastScore: record && record.score ? record.score : "0/0"
+    };
+
+    if (existingIndex >= 0) {
+        const previous = profiles[existingIndex];
+        profiles[existingIndex] = {
+            ...previous,
+            ...profile,
+            attemptCount: (previous.attemptCount || 0) + 1,
+            updatedAt: new Date().toISOString()
+        };
+    } else {
+        profiles.push(profile);
+    }
+
+    saveQuizStudentProfiles(profiles);
+    return profiles[existingIndex >= 0 ? existingIndex : profiles.length - 1];
+}
+
+function makeBlankQuizState() {
+    return {
+        current: 0,
+        score: 0,
+        selectedAnswer: null,
+        answers: Array(quizQuestions.length).fill(null),
+        locked: Array(quizQuestions.length).fill(false),
+        completed: false,
+        attemptId: quizAttemptId,
+        recordPersisted: false
+    };
+}
+
+function createQuizAttemptId() {
+    return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function resetQuizAttemptState({ preserveStudent = true, clearDraft = false } = {}) {
+    quizCurrent = 0;
+    quizScore = 0;
+    selectedAnswer = null;
+    quizAnswers = Array(quizQuestions.length).fill(null);
+    quizLocked = Array(quizQuestions.length).fill(false);
+    quizCompleted = false;
+    quizAttemptId = createQuizAttemptId();
+    quizRecordPersisted = false;
+
+    if (clearDraft) {
+        localStorage.removeItem(QUIZ_DRAFT_KEY);
+        localStorage.removeItem(QUIZ_DONE_KEY);
+    }
+
+    if (!preserveStudent) {
+        quizStudent = null;
+        localStorage.removeItem(QUIZ_STUDENT_KEY);
+    }
+
+    const actionWrap = document.getElementById("quiz-action-buttons");
+    if (actionWrap) {
+        actionWrap.style.display = "flex";
+    }
+
+    updateQuizStatus();
+}
+
+function normalizeQuizState(rawState) {
+    const fallback = makeBlankQuizState();
+    if (!rawState || typeof rawState !== "object") {
+        return fallback;
+    }
+
+    const answers = Array.isArray(rawState.answers) ? rawState.answers.slice(0, quizQuestions.length) : fallback.answers.slice();
+    const locked = Array.isArray(rawState.locked) ? rawState.locked.slice(0, quizQuestions.length) : fallback.locked.slice();
+
+    while (answers.length < quizQuestions.length) answers.push(null);
+    while (locked.length < quizQuestions.length) locked.push(false);
+
+    return {
+        current: Number.isInteger(rawState.current) ? rawState.current : 0,
+        score: Number.isFinite(rawState.score) ? rawState.score : 0,
+        selectedAnswer: typeof rawState.selectedAnswer === "string" ? rawState.selectedAnswer : null,
+        answers,
+        locked,
+        completed: Boolean(rawState.completed),
+        attemptId: typeof rawState.attemptId === "string" ? rawState.attemptId : createQuizAttemptId(),
+        recordPersisted: Boolean(rawState.recordPersisted)
+    };
+}
+
+function readQuizDraft() {
+    try {
+        const raw = localStorage.getItem(QUIZ_DRAFT_KEY);
+        return raw ? normalizeQuizState(JSON.parse(raw)) : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function readQuizStudent() {
+    try {
+        const raw = localStorage.getItem(QUIZ_STUDENT_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+        return null;
+    }
+}
+
+function saveQuizDraft() {
+    try {
+        localStorage.setItem(QUIZ_DRAFT_KEY, JSON.stringify({
+            current: quizCurrent,
+            score: quizScore,
+            selectedAnswer,
+            answers: quizAnswers,
+            locked: quizLocked,
+            completed: quizCompleted,
+            attemptId: quizAttemptId,
+            recordPersisted: quizRecordPersisted
+        }));
+        updateQuizStatus();
+    } catch (error) {
+        // Draft saving should never block the quiz flow.
+    }
+}
+
+function saveQuizStudent() {
+    try {
+        if (quizStudent) {
+            localStorage.setItem(QUIZ_STUDENT_KEY, JSON.stringify(quizStudent));
+        }
+    } catch (error) {
+        // Student info should never block the quiz flow.
+    }
+}
+
+function clearQuizDraft() {
+    resetQuizAttemptState({ preserveStudent: false });
+    updateQuizStatus();
+    showQuizSignup();
+}
+
+function applyQuizState(state) {
+    const normalized = normalizeQuizState(state);
+    quizCurrent = Math.min(normalized.current, quizQuestions.length - 1);
+    quizScore = normalized.score;
+    selectedAnswer = normalized.selectedAnswer;
+    quizAnswers = normalized.answers;
+    quizLocked = normalized.locked;
+    quizCompleted = normalized.completed;
+}
+
+function showQuizSignup() {
+    document.getElementById("quiz-signup-screen").style.display = "block";
+    document.getElementById("sim-quiz-content-screen").style.display = "none";
+    const error = document.getElementById("quiz-signup-error");
+    if (error) error.style.display = "none";
+}
+
+function showQuizContent() {
+    document.getElementById("quiz-signup-screen").style.display = "none";
+    document.getElementById("sim-quiz-content-screen").style.display = "block";
+}
+
+function handleQuizSignUp() {
+    const studentId = document.getElementById("quiz-student-id").value.trim();
+    const lastName = document.getElementById("quiz-lastName").value.trim();
+    const firstName = document.getElementById("quiz-firstName").value.trim();
+    const middleName = document.getElementById("quiz-middleName").value.trim();
+    const courseSection = document.getElementById("quiz-course-section").value.trim();
+    const error = document.getElementById("quiz-signup-error");
+
+    if (!studentId || !lastName || !firstName || !courseSection) {
+        error.style.display = "block";
+        error.textContent = "Please enter your student ID, full name, and course/section.";
+        return;
+    }
+
+    const existingProfile = findQuizStudentProfile({ studentId });
+    if (existingProfile && existingProfile.lastAttemptId) {
+        error.style.display = "block";
+        error.textContent = "This student ID has already completed the quiz. Students cannot retake the quiz with the same ID.";
+        return;
+    }
+
+    const resolvedStudent = {
+        studentId,
+        lastName,
+        firstName,
+        middleName,
+        course: courseSection,
+        section: ""
+    };
+
+    quizStudent = resolvedStudent;
+    saveQuizStudent();
+    upsertQuizStudentProfile(quizStudent, null);
+    startQuizSession();
+}
+
+function startQuizSession() {
+    showQuizContent();
+    resetQuizAttemptState({ preserveStudent: true });
+    saveQuizDraft();
+    loadQuizQuestion();
+}
+
+function updateQuizStatus(message) {
+    const status = document.getElementById("quiz-draft-status");
+    if (!status) return;
+
+    if (message) {
+        status.textContent = message;
+        return;
+    }
+
+    if (quizCompleted) {
+        status.textContent = "Quiz complete. You can review the result or close the modal.";
+    } else if (selectedAnswer) {
+        status.textContent = `Draft saved for question ${quizCurrent + 1}. Close the modal anytime and your answer will stay here.`;
+    } else {
+        status.textContent = "Draft answers save automatically, so you can switch back to the simulation anytime.";
+    }
+}
+
+function openQuizMode() {
+    const modal = document.getElementById("quiz-modal");
+    modal.style.display = "flex";
+
+    const student = readQuizStudent();
+    if (!student) {
+        showQuizSignup();
+        return;
+    }
+
+    quizStudent = student;
+    showQuizContent();
+
+    const draft = readQuizDraft();
+    if (draft) {
+        applyQuizState(draft);
+        quizAttemptId = draft.attemptId || quizAttemptId;
+        quizRecordPersisted = draft.recordPersisted || false;
+    } else {
+        resetQuizAttemptState({ preserveStudent: true });
+    }
+
+    saveQuizDraft();
+    loadQuizQuestion();
+}
+
+function toggleQuizMode() {
+    const modal = document.getElementById("quiz-modal");
+    const isOpen = modal.style.display === "flex";
+    if (isOpen) {
+        saveQuizDraft();
+        modal.style.display = "none";
+        return;
+    }
+
+    openQuizMode();
+}
+
+function loadQuizQuestion() {
+    if (quizCurrent >= quizQuestions.length) {
+        showQuizResults();
+        return;
+    }
+
+    const question = quizQuestions[quizCurrent];
+    selectedAnswer = quizAnswers[quizCurrent] || null;
+    
+    document.getElementById("quiz-question-display").style.display = "block";
+    document.getElementById("quiz-progress").innerHTML =
+        `Question ${quizCurrent + 1} / ${quizQuestions.length}`;
+    document.getElementById("quiz-q-text").innerText = question.q;
+    
+    // Display the elaborate hint
+    const hintElement = document.getElementById("quiz-hint-display");
+    if (hintElement) {
+        hintElement.innerHTML = `<strong>ðŸ“‹ How to Use Simulation:</strong><br>${question.hint}`;
+        hintElement.style.display = "block";
+    }
+    
+    // Create multiple choice buttons
+    const answerSection = document.getElementById("quiz-answer-section");
+    let optionsHTML = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+    
+    question.options.forEach((option, index) => {
+        optionsHTML += `
+            <button onclick="selectAnswer('${option}')" class="quiz-option-btn">
+                <span style="display: inline-block; width: 24px; height: 24px; background: rgba(56, 217, 255, 0.18); border-radius: 50%; text-align: center; line-height: 24px; margin-right: 10px; font-size: 0.9rem;">${String.fromCharCode(65 + index)}</span>
+                ${option}
+            </button>
+        `;
+    });
+    
+    optionsHTML += '</div>';
+    answerSection.innerHTML = optionsHTML;
+    
+    document.getElementById("quiz-feedback").style.display = "none";
+    document.getElementById("quiz-feedback").innerHTML = "";
+}
+
+function selectAnswer(option) {
+    selectedAnswer = option;
+    quizAnswers[quizCurrent] = option;
+    
+    const buttons = document.querySelectorAll('.quiz-option-btn');
+    buttons.forEach(btn => {
+        if (btn.innerText.includes(option)) {
+            btn.style.background = 'rgba(56, 217, 255, 0.18)';
+            btn.style.borderColor = '#38d9ff';
+            btn.style.boxShadow = '0 0 0 3px rgba(56, 217, 255, 0.16)';
+        } else {
+            btn.style.background = 'rgba(9, 16, 29, 0.92)';
+            btn.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+            btn.style.boxShadow = 'none';
+        }
+    });
+
+    updateQuizStatus(`Draft saved for question ${quizCurrent + 1}.`);
+    saveQuizDraft();
+}
+
+function submitQuizAnswer() {
+    if (!selectedAnswer) {
+        showQuizFeedback("Please choose an answer first.", false);
+        return;
+    }
+
+    const question = quizQuestions[quizCurrent];
+    const isCorrect = selectedAnswer === question.a;
+    quizLocked[quizCurrent] = true;
+
+    // Show only correctness — do NOT reveal the correct answer to students
+    if (isCorrect) {
+        quizScore++;
+        showQuizFeedback(`Correct!`, true);
+    } else {
+        showQuizFeedback(`Incorrect.`, false);
+    }
+
+    saveQuizDraft();
+
+    setTimeout(() => {
+        quizCurrent++;
+        selectedAnswer = null;
+        if (quizCurrent >= quizQuestions.length) {
+            quizCompleted = true;
+            saveQuizDraft();
+            // Save results to professor records and show results; this prevents retake
+            persistQuizRecord();
+            showQuizResults();
+        } else {
+            saveQuizDraft();
+            loadQuizQuestion();
+        }
+    }, 900);
+}
+
+function showQuizFeedback(message, isCorrect) {
+    const feedback = document.getElementById("quiz-feedback");
+    feedback.innerHTML = message;
+    feedback.style.display = "block";
+    feedback.className = isCorrect ? "quiz-feedback-correct" : "quiz-feedback-incorrect";
+}
+
+function showQuizResults() {
+    document.getElementById("quiz-question-display").style.display = "none";
+    document.getElementById("quiz-hint-display").style.display = "none";
+    document.getElementById("quiz-feedback").style.display = "none";
+    document.getElementById("quiz-answer-section").innerHTML = `
+        <div style="text-align: center;">
+            <h2 style="color: #38d9ff; margin-bottom: 20px; font-size: 2rem;">Quiz Complete!</h2>
+            <div style="background: rgba(56, 217, 255, 0.08); padding: 40px; border-radius: 12px; margin-bottom: 25px; border: 1px solid rgba(56, 217, 255, 0.16);">
+                <div style="font-size: 3rem; color: #2ee6a6; font-weight: 900; margin-bottom: 10px;">${quizScore}/${quizQuestions.length}</div>
+                <div style="font-size: 1.2rem; color: #8aa0ba;">Score: ${((quizScore/quizQuestions.length)*100).toFixed(1)}%</div>
+            </div>
+            <p style="color: #8aa0ba; margin-bottom: 30px;">Your results have been saved to the admin dashboard.</p>
+            <button onclick="closeQuizAndReturn()" style="padding: 12px 30px; background: #38d9ff; color: #05121c; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 1rem;">Return to Simulation</button>
+        </div>
+    `;
+    updateQuizStatus("Quiz complete. Your result is saved until you clear the draft.");
+    // Ensure Lock In / Clear Draft buttons are hidden on the results screen
+    const actionWrap = document.getElementById('quiz-action-buttons');
+    if (actionWrap) actionWrap.style.display = 'none';
+}
+
+function closeQuizAndReturn() {
+    const modal = document.getElementById('quiz-modal');
+    saveQuizDraft();
+    if (modal) modal.style.display = 'none';
+}
+function retakeQuiz() {
+    resetQuizAttemptState({ preserveStudent: true });
+    showQuizContent();
+    saveQuizDraft();
+    loadQuizQuestion();
+}
+
+window.addEventListener('beforeunload', saveQuizDraft);
+
+function persistQuizRecord() {
+    if (quizRecordPersisted || !quizStudent) return;
+
+    try {
+        const fullName = [
+            quizStudent.lastName,
+            quizStudent.firstName ? `${quizStudent.firstName}${quizStudent.middleName ? ` ${quizStudent.middleName}` : ''}` : ''
+        ].filter(Boolean).join(', ').trim() || 'Unknown Student';
+        const records = JSON.parse(localStorage.getItem(QUIZ_RECORDS_KEY) || '[]');
+        const studentKey = normalizeStudentProfileKey(quizStudent);
+        const existingIndex = records.findIndex(record => record.studentKey === studentKey);
+
+        // Build details for admin (includes correct answers for grading)
+        const details = quizQuestions.map((q, i) => ({
+            question: q.q,
+            userAnswer: quizAnswers[i] || 'No Answer',
+            correctAnswer: q.a,
+            isCorrect: quizAnswers[i] === q.a
+        }));
+
+        const record = {
+            attemptId: quizAttemptId,
+            studentKey,
+            studentId: quizStudent.studentId || '',
+            fullName,
+            course: quizStudent.course || 'N/A',
+            section: quizStudent.section,
+            score: `${quizScore}/${quizQuestions.length}`,
+            correctCount: quizScore,
+            wrongCount: quizQuestions.length - quizScore,
+            percentage: ((quizScore/quizQuestions.length)*100).toFixed(2) + '%',
+            timestamp: new Date().toLocaleString(),
+            attempts: 1,
+            details
+        };
+
+        if (existingIndex >= 0) {
+            const previousRecord = records[existingIndex];
+            records[existingIndex] = {
+                ...previousRecord,
+                ...record,
+                attempts: (previousRecord.attempts || 0) + 1,
+                lastAttemptId: quizAttemptId,
+                previousScore: previousRecord.score
+            };
+        } else {
+            records.push(record);
+        }
+
+        localStorage.setItem(QUIZ_RECORDS_KEY, JSON.stringify(records));
+        quizRecordPersisted = true;
+        upsertQuizStudentProfile(quizStudent, record);
+        // Remove per-question locks after completion so the UI doesn't show locked state
+        quizLocked = Array(quizQuestions.length).fill(false);
+        saveQuizDraft();
+        try { updateUIAfterQuizCompletion(); } catch(e) {}
+    } catch (e) {
+        // Do not block user on storage failures
+        console.error('Failed to persist quiz record', e);
+    }
+}
+
+function updateUIAfterQuizCompletion() {
+    const actionWrap = document.getElementById('quiz-action-buttons');
+    if (actionWrap) actionWrap.style.display = 'none';
+
+    const status = document.getElementById('quiz-draft-status');
+    if (status) {
+        status.textContent = 'Quiz complete. Your result has been saved to the admin dashboard.';
+    }
+}
+
+function resetQuiz() {
+    clearQuizDraft();
+}
+</script>
+<script>
+(function() {
+    try {
+        const nav = performance.getEntriesByType('navigation')[0] || {};
+        const reloaded = nav.type === 'reload' || window.performance?.navigation?.type === 1;
+        const file = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1).toLowerCase();
+        if (reloaded && file && file !== 'index.html') {
+            window.location.replace('index.html');
+        }
+    } catch (e) {
+        console.warn('Redirect on reload failed', e);
+    }
+})();
+</script>
+</body>
+</html>
+
+
+
+
+
+
